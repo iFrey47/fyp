@@ -4,16 +4,14 @@ const ProtectedRoute = ({ allowedRoles }) => {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  console.log("Token:", token); // Debugging
-  console.log("Role:", role); // Debugging
-  console.log("Allowed Roles:", allowedRoles); // Debugging
-
+  // If no token, redirect to Sign-in
   if (!token) {
-    return <Navigate to="/sign-in" replace />;
+    return <Navigate to="/sign-in" />;
   }
 
+  // If role is not allowed, redirect to Unauthorized page
   if (!allowedRoles.includes(role)) {
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to="/unauthorized" />;
   }
 
   return <Outlet />;

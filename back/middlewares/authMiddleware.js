@@ -1,4 +1,4 @@
-import { verify } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
   const token = req.header("Authorization");
@@ -6,7 +6,7 @@ const authMiddleware = (req, res, next) => {
     return res.status(401).json({ success: false, message: "Access denied" });
 
   try {
-    const decoded = verify(token.split(" ")[1], process.env.JWT_SECRET);
+    const decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {

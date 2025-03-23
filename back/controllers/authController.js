@@ -78,3 +78,91 @@ export const signIn = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+// update
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, password } = req.body;
+    const userId = req.user.id; // Extracted from JWT middleware
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Update name if provided
+    if (name) {
+      user.username = name;
+    }
+
+    // Update password if provided
+    if (password) {
+      user.password = await hash(password, 10);
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: { username: user.username, email: user.email, role: user.role },
+    });
+  } catch (error) {
+    console.error("Update Profile Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Delete Account
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id; // extracted from JWT middleware
+
+    // Find and delete user
+    const deletedUser = await User.findByIdAndDelete(userId);
+    if (!deletedUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Account deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete Account Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// get profile
+
+export const getProfile = async (req, res) => {
+  try {
+    const userId = req.user.id; // extracted from JWT middleware
+
+    // find the user, excluding the password field
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      user: {
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Get Profile Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
