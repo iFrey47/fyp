@@ -25,22 +25,42 @@ export default function SignIn() {
         },
         body: JSON.stringify(formData),
       });
+
       const data = await res.json();
-      if (data.success === false) {
+      console.log("API Response:", data); // Debugging API response
+
+      if (!res.ok || data.success === false) {
+        setError(data.message || "Something went wrong");
         setLoading(false);
-        setError(data.message);
         return;
       }
 
       localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.user.data);
+      localStorage.setItem("role", data.user.role); //Fix: Storing correct role
 
       setLoading(false);
       setError(null);
-      navigate("/room-options");
+
+      //Redirect based on role
+      switch (data.user.role) {
+        case "student":
+          navigate("/student-dashboard");
+          break;
+        case "supervisor":
+          navigate("/supervisor-dashboard");
+          break;
+        case "mentor":
+          navigate("/mentor-dashboard");
+          break;
+        case "admin":
+          navigate("/admin-dashboard");
+          break;
+        default:
+          navigate("/unauthorized");
+      }
     } catch (error) {
       setLoading(false);
-      setError(error.message);
+      setError("Network error, please try again.", error);
     }
   };
 
