@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function SignUp() {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({ role: "student" });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -20,17 +20,17 @@ export default function SignUp() {
       setLoading(true);
       const res = await fetch("http://localhost:5000/api/auth/sign-up", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+
       const data = await res.json();
-      if (data.success === false) {
+      if (!data.success) {
         setLoading(false);
         setError(data.message);
         return;
       }
+
       setLoading(false);
       setError(null);
       navigate("/sign-in");
@@ -66,6 +66,17 @@ export default function SignUp() {
             id="password"
             onChange={handleChange}
           />
+
+          <select
+            id="role"
+            onChange={handleChange}
+            className="border p-3 rounded-lg"
+          >
+            <option value="student">Student</option>
+            <option value="supervisor">Supervisor</option>
+            <option value="mentor">Mentor</option>
+            <option value="admin">Admin</option>
+          </select>
 
           <button
             disabled={loading}

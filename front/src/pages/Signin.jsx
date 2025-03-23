@@ -31,6 +31,10 @@ export default function SignIn() {
         setError(data.message);
         return;
       }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.user.data);
+
       setLoading(false);
       setError(null);
       navigate("/room-options");
