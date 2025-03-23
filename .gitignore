@@ -1,0 +1,16 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+.env
+
+# Frontend build files
+front/node_modules/
+front/.next/
+front/dist/
+
+# Backend build files
+back/node_modules/
+back/dist/
+
+# VS Code settings
+.vscode/
