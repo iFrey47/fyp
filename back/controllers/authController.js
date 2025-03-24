@@ -166,3 +166,28 @@ export const getProfile = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+// get use role
+
+// Get User Role
+export const getUserRole = async (req, res) => {
+  try {
+    const userId = req.user.id; // Extracted from JWT middleware
+
+    // Find user in DB
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      role: user.role, // Send only the role
+    });
+  } catch (error) {
+    console.error("Get User Role Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

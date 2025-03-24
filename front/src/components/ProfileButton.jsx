@@ -6,7 +6,7 @@ export default function ProfileButton() {
   const location = useLocation();
 
   // Define pages where the button should be hidden
-  const authPages = ["/sign-in", "/sign-up"];
+  const authPages = ["/sign-in", "/sign-up", "/profile"];
 
   // If user is not authenticated OR on auth pages, don't show button
   if (!isAuthenticated || authPages.includes(location.pathname)) return null;
