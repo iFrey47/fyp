@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema(
       enum: ["student", "supervisor", "mentor", "admin"], // Define allowed roles
       default: "student", // Default role
     },
+    isAvailable: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -58,7 +58,7 @@ export default function DashboardButton() {
     <div className="fixed top-4 right-20 z-50">
       <Link
         to={dashboardPath}
-        className="bg-green-600 text-white px-5 py-2 rounded-xl font-semibold shadow-md hover:bg-green-700 hover:shadow-lg transition"
+        className="bg-green-600 text-white px-4 py-2 rounded-lg uppercase font-semibold hover:bg-green-700 transition"
       >
         {loading ? "Loading..." : "Dashboard"}
       </Link>
