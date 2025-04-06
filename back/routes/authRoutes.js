@@ -1,7 +1,6 @@
 import { Router } from "express";
 import authMiddleware from "../middlewares/authMiddleware.js";
 import {
-  acceptRequest,
   deleteAccount,
   fetchRequests,
   getAllMentors,
@@ -12,6 +11,7 @@ import {
   signIn,
   toggleAvailability,
   updateProfile,
+  updateRequestStatus,
 } from "../controllers/authController.js";
 import { signUp } from "../controllers/authController.js";
 
@@ -35,7 +35,8 @@ router.put("/toggle-availability", authMiddleware, toggleAvailability);
 
 // send or accept request bw mentors and the studs
 router.post("/send-request", authMiddleware, sendRequest);
-router.put("/request/:requestId", authMiddleware, acceptRequest);
+// router.put("/request/:requestId", authMiddleware, acceptRequest);
 router.get("/requests", authMiddleware, fetchRequests);
+router.put("/request/:requestId", authMiddleware, updateRequestStatus);
 
 export default router;

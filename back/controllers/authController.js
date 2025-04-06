@@ -263,14 +263,11 @@ export const getAvailability = async (req, res) => {
   }
 };
 
-// Send Request by Student
-// Send Request by Student
 export const sendRequest = async (req, res) => {
   try {
-    const studentId = req.user.id; // Extracted from JWT
-    const { mentorId } = req.body; // The mentor the student is requesting
+    const studentId = req.user.id;
+    const { mentorId } = req.body;
 
-    // Find student and mentor in DB
     const student = await User.findById(studentId);
     const mentor = await User.findById(mentorId);
 
@@ -295,11 +292,10 @@ export const sendRequest = async (req, res) => {
       });
     }
 
-    // Check if the student already sent a request to this mentor
     const existingRequest = await Request.findOne({
       student: studentId,
       mentor: mentorId,
-      status: { $in: ["pending", "accepted"] }, // Check only pending or accepted requests
+      status: { $in: ["pending", "accepted"] },
     });
 
     if (existingRequest) {
@@ -309,21 +305,24 @@ export const sendRequest = async (req, res) => {
       });
     }
 
-    // Create a request if no existing request found
+    // Create and save the request
     const request = new Request({
       student: studentId,
       mentor: mentorId,
-      status: "pending", // pending status when the request is sent
+      status: "pending",
     });
 
-    // Debugging: Log the created request object
-    console.log("Created Request:", request);
-
     await request.save();
+
+    // Populate the newly created request before sending it back
+    const populatedRequest = await Request.findById(request._id)
+      .populate("student mentor")
+      .exec();
 
     res.status(200).json({
       success: true,
       message: "Request sent successfully",
+      request: populatedRequest, // send this to frontend
     });
   } catch (error) {
     console.error("Send Request Error:", error);
@@ -331,21 +330,22 @@ export const sendRequest = async (req, res) => {
   }
 };
 
-// Accept Request by Mentor
-export const acceptRequest = async (req, res) => {
+export const updateRequestStatus = async (req, res) => {
   try {
-    const mentorId = req.user.id; // Extracted from JWT
-    const { requestId } = req.params; // Now extracting requestId from URL params
+    const mentorId = req.user.id;
+    const { requestId } = req.params;
+    const { status } = req.body; // "accepted" or "rejected"
 
-    console.log("Request ID from URL:", requestId);
+    if (!["accepted", "rejected"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status value",
+      });
+    }
 
-    // Find the request in the database and populate the correct fields
     const request = await Request.findById(requestId)
-      .populate("student mentor") // Ensure correct field names here
+      .populate("student mentor")
       .exec();
-
-    // Debugging: Log the fetched request to check its structure
-    console.log("Fetched Request:", request);
 
     if (!request) {
       return res.status(404).json({
@@ -354,38 +354,24 @@ export const acceptRequest = async (req, res) => {
       });
     }
 
-    // Debugging: Check the fields in the request object
-    console.log(
-      "Request Student ID:",
-      request.student ? request.student._id : "No student found"
-    );
-    console.log(
-      "Request Mentor ID:",
-      request.mentor ? request.mentor._id : "No mentor found"
-    );
-
-    // Check if the mentorId matches the request's mentor
     if (
       request.mentor &&
       request.mentor._id.toString() !== mentorId.toString()
     ) {
       return res.status(403).json({
         success: false,
-        message: "You are not authorized to accept this request",
+        message: "You are not authorized to update this request",
       });
     }
-
-    // Update the request status to accepted
-    request.status = "accepted";
+    request.status = status;
     await request.save();
 
-    // Respond back
     res.status(200).json({
       success: true,
-      message: "Request accepted successfully",
+      message: `Request ${status} successfully`,
     });
   } catch (error) {
-    console.error("Accept Request Error:", error);
+    console.error("Update Request Error:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
