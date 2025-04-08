@@ -9,6 +9,11 @@ export default function StudentDashboard() {
   const role = localStorage.getItem("role");
   const token = localStorage.getItem("token");
 
+  // Added confirmation state variables
+  const [confirmationVisible, setConfirmationVisible] = useState(false);
+  const [currentMentorId, setCurrentMentorId] = useState(null);
+  const [currentMentor, setCurrentMentor] = useState(null);
+
   useEffect(() => {
     if (role !== "student") {
       navigate("/unauthorized");
@@ -56,6 +61,26 @@ export default function StudentDashboard() {
     }
   }, [role, navigate, token]);
 
+  // Show confirmation dialog
+  const showConfirmation = (mentorId) => {
+    const mentor = mentors.find((m) => m._id === mentorId);
+    setCurrentMentor(mentor);
+    setCurrentMentorId(mentorId);
+    setConfirmationVisible(true);
+  };
+
+  // Close confirmation dialog
+  const closeConfirmation = () => {
+    setConfirmationVisible(false);
+    setCurrentMentorId(null);
+  };
+
+  // Confirm action and send request
+  const confirmAction = () => {
+    sendRequest(currentMentorId);
+    closeConfirmation();
+  };
+
   const sendRequest = async (mentorId) => {
     setLoading(true);
     try {
@@ -96,57 +121,69 @@ export default function StudentDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-8">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        Available Mentors
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-white p-10">
+      <h2 className="text-4xl font-extrabold mb-12 text-center text-gray-800">
+        Find Your Mentor
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
         {mentors.map((mentor) => {
-          const status = getRequestStatus(mentor._id); // Get request status for each mentor
+          const status = getRequestStatus(mentor._id);
+          const isAvailable = mentor.isAvailable;
 
           return (
             <div
               key={mentor._id}
-              className="border rounded-lg p-4 shadow-sm bg-gray-50"
+              className="bg-white/60 backdrop-blur-md border border-gray-200 shadow-lg rounded-2xl p-6 hover:shadow-xl transition-all duration-300"
             >
-              <h3 className="text-lg font-semibold text-gray-700">
-                {mentor.username}
-              </h3>
-              <p className="text-sm text-gray-600">{mentor.email}</p>
-              <p className="mt-2 text-sm font-medium">
-                Status:{" "}
+              <div className="flex items-center gap-4 mb-5">
+                <div className="w-12 h-12 rounded-full bg-purple-600 text-white flex items-center justify-center text-lg font-bold shadow-inner">
+                  {mentor.username[0]?.toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    {mentor.username}
+                  </h3>
+                  <p className="text-sm text-gray-500">{mentor.email}</p>
+                </div>
+              </div>
+
+              <div className="mb-4">
                 <span
-                  className={`${
-                    mentor.isAvailable ? "text-green-600" : "text-red-600"
+                  className={`inline-block px-3 py-1 text-xs font-bold uppercase tracking-wide rounded-full ${
+                    isAvailable
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
                   }`}
                 >
-                  {mentor.isAvailable ? "Available" : "Not Available"}
+                  {isAvailable ? "Available" : "Not Available"}
                 </span>
-              </p>
+              </div>
 
-              {/* Show appropriate UI based on request status */}
-              <div className="mt-4">
+              <div>
                 {status === "pending" && (
-                  <p className="text-yellow-600 font-semibold">Pending...</p>
+                  <p className="text-yellow-600 font-medium animate-pulse">
+                    Pending Request...
+                  </p>
                 )}
 
                 {status === "accepted" && (
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                  <button className="w-full py-2 mt-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:brightness-110 transition">
                     Chat
                   </button>
                 )}
 
                 {status === "rejected" && (
-                  <p className="text-red-600 font-semibold">Request Rejected</p>
+                  <p className="text-red-500 font-semibold">Request Rejected</p>
                 )}
 
-                {!status && mentor.isAvailable && (
+                {!status && isAvailable && (
                   <button
-                    className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
-                    onClick={() => sendRequest(mentor._id)}
+                    className="w-full py-2 mt-2 bg-gradient-to-r from-purple-500 to-purple-700 text-white rounded-xl hover:scale-[1.02] transition-transform"
+                    onClick={() => showConfirmation(mentor._id)}
                     disabled={loading}
                   >
-                    {loading ? "Sending Request..." : "Send Request"}
+                    Send Request
                   </button>
                 )}
               </div>
@@ -154,6 +191,56 @@ export default function StudentDashboard() {
           );
         })}
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmationVisible && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+          <div className="relative bg-white rounded-lg shadow-xl max-w-md mx-auto p-6">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
+                <svg
+                  className="h-6 w-6 text-purple-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
+                </svg>
+              </div>
+
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Send Mentorship Request?
+              </h3>
+
+              <p className="text-sm text-gray-500 mb-6">
+                You are about to send a mentorship request to{" "}
+                {currentMentor?.username}. They will be notified and can accept
+                or decline your request.
+              </p>
+
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={closeConfirmation}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmAction}
+                  className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                >
+                  Yes, Send Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

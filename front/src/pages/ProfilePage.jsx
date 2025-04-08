@@ -101,83 +101,204 @@ export default function Profile() {
     navigate("/sign-in");
   };
 
+  //   return (
+  //     <div className="flex justify-center items-center min-h-screen bg-gray-50">
+  //       <div className="p-8 max-w-md w-full bg-white shadow-lg rounded-lg">
+  //         <h1 className="text-3xl text-center font-bold mb-6 text-gray-700">
+  //           Profile
+  //         </h1>
+
+  //         <form onSubmit={handleUpdate} className="flex flex-col gap-4">
+  //           <label className="font-medium text-gray-600">Name</label>
+  //           <input
+  //             type="text"
+  //             placeholder="Enter your name"
+  //             className="border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+  //             id="name"
+  //             value={formData.name || ""}
+  //             onChange={handleChange}
+  //           />
+
+  //           <label className="font-medium text-gray-600">New Password</label>
+  //           <input
+  //             type="password"
+  //             placeholder="Enter new password"
+  //             className="border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+  //             id="password"
+  //             value={formData.password || ""}
+  //             onChange={handleChange}
+  //           />
+
+  //           <button
+  //             type="submit"
+  //             disabled={loading}
+  //             className="bg-blue-600 text-white p-3 rounded-lg uppercase font-semibold hover:bg-blue-700 transition disabled:opacity-50"
+  //           >
+  //             {loading ? "Updating..." : "Update Profile"}
+  //           </button>
+  //         </form>
+
+  //         <div className="flex flex-col gap-3 mt-6">
+  //           <button
+  //             onClick={() => setShowDeleteConfirm(true)}
+  //             className="bg-red-600 text-white p-3 rounded-lg uppercase font-semibold hover:bg-red-700 transition"
+  //           >
+  //             Delete Account
+  //           </button>
+
+  //           <button
+  //             onClick={handleLogout}
+  //             className="bg-gray-600 text-white p-3 rounded-lg uppercase font-semibold hover:bg-gray-700 transition"
+  //           >
+  //             Logout
+  //           </button>
+  //         </div>
+
+  //         {error && <p className="text-red-500 mt-5 text-center">{error}</p>}
+  //         {success && (
+  //           <p className="text-green-500 mt-5 text-center">{success}</p>
+  //         )}
+  //       </div>
+
+  //       {showDeleteConfirm && (
+  //         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+  //           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+  //             <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
+  //             <p className="text-gray-600 mb-4">
+  //               Are you sure you want to delete your account? This action cannot
+  //               be undone.
+  //             </p>
+  //             <div className="flex gap-4 justify-center">
+  //               <button
+  //                 onClick={() => setShowDeleteConfirm(false)}
+  //                 className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500"
+  //               >
+  //                 Cancel
+  //               </button>
+  //               <button
+  //                 onClick={handleDelete}
+  //                 className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+  //               >
+  //                 Delete
+  //               </button>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       )}
+  //     </div>
+  //   );
+  // }
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <div className="p-8 max-w-md w-full bg-white shadow-lg rounded-lg">
-        <h1 className="text-3xl text-center font-bold mb-6 text-gray-700">
-          Profile
-        </h1>
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="p-8 max-w-md w-full bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Profile</h1>
+          <p className="text-gray-500">Update your account details</p>
+        </div>
 
-        <form onSubmit={handleUpdate} className="flex flex-col gap-4">
-          <label className="font-medium text-gray-600">Name</label>
-          <input
-            type="text"
-            placeholder="Enter your name"
-            className="border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            id="name"
-            value={formData.name || ""}
-            onChange={handleChange}
-          />
+        <form onSubmit={handleUpdate} className="flex flex-col gap-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              placeholder="Enter your name"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              id="name"
+              value={formData.name || ""}
+              onChange={handleChange}
+            />
+          </div>
 
-          <label className="font-medium text-gray-600">New Password</label>
-          <input
-            type="password"
-            placeholder="Enter new password"
-            className="border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            id="password"
-            value={formData.password || ""}
-            onChange={handleChange}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              New Password
+            </label>
+            <input
+              type="password"
+              placeholder="Enter new password"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              id="password"
+              value={formData.password || ""}
+              onChange={handleChange}
+            />
+          </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white p-3 rounded-lg uppercase font-semibold hover:bg-blue-700 transition disabled:opacity-50"
+            className="mt-2 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-[0.98] transition disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {loading ? "Updating..." : "Update Profile"}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                </svg>
+                Updating...
+              </span>
+            ) : (
+              "Update Profile"
+            )}
           </button>
         </form>
 
-        <div className="flex flex-col gap-3 mt-6">
+        <div className="mt-8 space-y-3">
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="bg-red-600 text-white p-3 rounded-lg uppercase font-semibold hover:bg-red-700 transition"
+            className="w-full bg-red-500/10 text-red-600 py-3 rounded-lg font-medium hover:bg-red-500/20 transition active:scale-[0.98]"
           >
             Delete Account
           </button>
-
           <button
             onClick={handleLogout}
-            className="bg-gray-600 text-white p-3 rounded-lg uppercase font-semibold hover:bg-gray-700 transition"
+            className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition active:scale-[0.98]"
           >
             Logout
           </button>
         </div>
 
-        {error && <p className="text-red-500 mt-5 text-center">{error}</p>}
+        {/* Messages */}
+        {error && (
+          <p className="mt-6 p-3 bg-red-50 text-red-600 text-center rounded-lg">
+            {error}
+          </p>
+        )}
         {success && (
-          <p className="text-green-500 mt-5 text-center">{success}</p>
+          <p className="mt-6 p-3 bg-green-50 text-green-600 text-center rounded-lg">
+            {success}
+          </p>
         )}
       </div>
 
+      {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-            <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
-            <p className="text-gray-600 mb-4">
-              Are you sure you want to delete your account? This action cannot
-              be undone.
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4">
+          <div className="bg-white p-6 rounded-xl max-w-sm w-full animate-fade-in">
+            <h2 className="text-xl font-bold text-gray-800 mb-3">
+              Confirm Delete
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Are you sure? This will permanently delete your account.
             </p>
-            <div className="flex gap-4 justify-center">
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500"
+                className="flex-1 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                className="flex-1 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
               >
                 Delete
               </button>
