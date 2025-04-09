@@ -430,3 +430,36 @@ export const fetchRequests = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+export const fetchAcceptedStudents = async (req, res) => {
+  try {
+    const mentorId = req.user.id; // Extract mentor's ID from JWT
+
+    // Find the mentor and populate the accepted students list
+    const mentor = await User.findById(mentorId).populate(
+      "acceptedStudents.student"
+    );
+
+    if (!mentor) {
+      return res.status(404).json({
+        success: false,
+        message: "Mentor not found",
+      });
+    }
+
+    if (!mentor.acceptedStudents || mentor.acceptedStudents.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No accepted students found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      acceptedStudents: mentor.acceptedStudents, // List of accepted students
+    });
+  } catch (error) {
+    console.error("Fetch Accepted Students Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

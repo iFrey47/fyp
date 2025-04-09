@@ -2,6 +2,7 @@ import { Router } from "express";
 import authMiddleware from "../middlewares/authMiddleware.js";
 import {
   deleteAccount,
+  fetchAcceptedStudents,
   fetchRequests,
   getAllMentors,
   getAvailability,
@@ -38,5 +39,7 @@ router.post("/send-request", authMiddleware, sendRequest);
 // router.put("/request/:requestId", authMiddleware, acceptRequest);
 router.get("/requests", authMiddleware, fetchRequests);
 router.put("/request/:requestId", authMiddleware, updateRequestStatus);
+
+router.get("/accepted-students", authMiddleware, fetchAcceptedStudents);
 
 export default router;

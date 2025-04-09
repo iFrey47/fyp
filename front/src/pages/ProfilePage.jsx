@@ -14,7 +14,7 @@ export default function Profile() {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          navigate("/login");
+          navigate("/sign-in");
           return;
         }
 

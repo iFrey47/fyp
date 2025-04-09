@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
+import SignUp from "./pages/Signup";
+import SignIn from "./pages/Signin";
 import StudentDashboard from "./pages/StudentDashboard";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import MentorDashboard from "./pages/MentorDashboard";
@@ -10,6 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/ProfilePage";
 import ProfileButton from "./components/ProfileButton";
 import DashboardButton from "./components/DashoardButton";
+import ChatPage from "./pages/CharPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Routes>
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/chat" element={<ChatPage />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
 
         <Route
@@ -35,6 +37,11 @@ function App() {
         <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
           <Route path="/student-dashboard" element={<StudentDashboard />} />
         </Route>
+
+        {/* effing around */}
+        {/* <Route element={<ProtectedRoute />}>
+          <Route path="/chat" element={<ChatPage />} />
+        </Route> */}
 
         <Route element={<ProtectedRoute allowedRoles={["supervisor"]} />}>
           <Route
