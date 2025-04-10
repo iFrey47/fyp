@@ -172,7 +172,7 @@ export default function StudentDashboard() {
                     className="w-full py-2 mt-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:brightness-110 transition"
                     onClick={() =>
                       navigate("/chat", {
-                        state: { recipientUser: mentor.username },
+                        state: { initialSelectedContact: mentor.username },
                       })
                     }
                   >

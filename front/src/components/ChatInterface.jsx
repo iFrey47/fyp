@@ -1,111 +1,112 @@
 import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 
-const ChatInterface = ({ currentUser, recipientUser, userType }) => {
+const ChatInterface = ({ currentUser, recipientUser }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [isOnline, setIsOnline] = useState(false);
   const socket = useRef();
   const messagesEndRef = useRef(null);
 
-  // Create a unique chat ID to store messages for this conversation
+  // Create a unique chat ID for localStorage (sorted to ensure consistency)
   const chatId = [currentUser, recipientUser].sort().join("-");
 
   // Load saved messages when component mounts
   useEffect(() => {
-    const loadSavedMessages = () => {
-      const savedMessages = localStorage.getItem(`chat-messages-${chatId}`);
-      if (savedMessages) {
-        try {
-          const parsedMessages = JSON.parse(savedMessages);
-          setMessages(parsedMessages);
-          console.log(
-            `Loaded ${parsedMessages.length} saved messages for chat ${chatId}`
-          );
-        } catch (error) {
-          console.error("Error loading saved messages:", error);
-        }
+    const savedMessages = localStorage.getItem(`chat-messages-${chatId}`);
+    if (savedMessages) {
+      try {
+        const parsedMessages = JSON.parse(savedMessages);
+        setMessages(parsedMessages);
+        console.log(
+          `Loaded ${parsedMessages.length} messages for chat ${chatId}`
+        );
+      } catch (error) {
+        console.error("Error loading messages:", error);
       }
-    };
-
-    loadSavedMessages();
+    }
   }, [chatId]);
 
-  // Save messages to localStorage whenever they change
+  // Save messages to localStorage
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem(`chat-messages-${chatId}`, JSON.stringify(messages));
     }
   }, [messages, chatId]);
 
+  // Socket connection and message handling
   useEffect(() => {
-    // Connect to socket server
-    socket.current = io("http://localhost:5000");
-
-    // Register user with socket
-    socket.current.emit("register", currentUser);
-    console.log(`Registered as ${currentUser} in socket`);
-
-    // Listen for incoming messages
-    socket.current.on("receive_message", (data) => {
-      console.log("Received message:", data);
-      const newMessage = {
-        from: data.from,
-        message: data.message,
-        isMine: false,
-      };
-      setMessages((prev) => [...prev, newMessage]);
+    console.log("[Chat Setup] Current user:", currentUser);
+    console.log("[Chat Setup] Recipient user:", recipientUser);
+    // Initialize socket connection
+    socket.current = io("http://localhost:5000", {
+      withCredentials: true,
+      transports: ["websocket"],
+      reconnectionAttempts: 3,
     });
 
-    // Cleanup on unmount
+    // Register user with socket server
+    socket.current.emit("register", currentUser);
+
+    console.log("Socket registered with username:", currentUser); // Verify real username
+
+    console.log(`User registered: ${currentUser}`);
+
+    // Message reception handler
+    const handleMessage = (data) => {
+      // Only add if message is for current chat
+      if (data.from === recipientUser || data.from === currentUser) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            from: data.from,
+            message: data.message,
+            isMine: data.from === currentUser,
+            timestamp: new Date().toISOString(),
+          },
+        ]);
+      }
+    };
+
+    // Set up event listeners
+    socket.current.on("receive_message", handleMessage);
+    socket.current.on("connect_error", (err) =>
+      console.error("Connection error:", err)
+    );
+
+    // Cleanup function
     return () => {
+      socket.current.off("receive_message", handleMessage);
       socket.current.disconnect();
     };
-  }, [currentUser]);
-
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // Simulate checking if recipient is online
-  useEffect(() => {
-    // In a real app, you'd get this from the server
-    const checkOnlineStatus = async () => {
-      // This simulates a server check - replace with real implementation
-      setIsOnline(true);
-    };
-
-    checkOnlineStatus();
-
-    // Log that we're in a chat with this recipient
-    console.log(`Chat initialized with ${recipientUser} as a ${userType}`);
-  }, [recipientUser, userType]);
+  }, [currentUser, recipientUser]); // Add recipientUser to dependencies
 
   const sendMessage = (e) => {
     e.preventDefault();
+    if (!message.trim()) return;
 
-    if (message.trim()) {
-      // Create the message object
-      const newMessage = { from: currentUser, message, isMine: true };
+    // Debug: Verify usernames before sending
+    console.log("[Message Send] Current user:", currentUser);
+    console.log("[Message Send] Recipient user:", recipientUser);
 
-      // Add message to local state
-      setMessages((prev) => [...prev, newMessage]);
+    // Create message object
+    const newMessage = {
+      from: currentUser,
+      message: message.trim(),
+      isMine: true,
+      timestamp: new Date().toISOString(),
+    };
 
-      // Send message via socket
-      socket.current.emit("send_message", {
-        from: currentUser,
-        to: recipientUser,
-        message,
-      });
+    // Update UI immediately
+    setMessages((prev) => [...prev, newMessage]);
+    setMessage("");
 
-      console.log(`Sent message to ${recipientUser}: ${message}`);
-
-      // Clear input
-      setMessage("");
-    }
+    // Send via socket
+    socket.current.emit("send_message", {
+      from: currentUser,
+      to: recipientUser, // This must match the exact recipient username
+      message: message.trim(),
+    });
   };
-
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Header */}
@@ -116,14 +117,6 @@ const ChatInterface = ({ currentUser, recipientUser, userType }) => {
           </div>
           <div className="ml-3">
             <h2 className="font-medium text-gray-800">{recipientUser}</h2>
-            <div className="flex items-center text-sm text-gray-500">
-              <span
-                className={`w-2 h-2 rounded-full mr-1 ${
-                  isOnline ? "bg-green-500" : "bg-gray-400"
-                }`}
-              ></span>
-              <span>{isOnline ? "Online" : "Offline"}</span>
-            </div>
           </div>
         </div>
       </div>

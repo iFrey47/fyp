@@ -433,33 +433,26 @@ export const fetchRequests = async (req, res) => {
 
 export const fetchAcceptedStudents = async (req, res) => {
   try {
-    const mentorId = req.user.id; // Extract mentor's ID from JWT
+    const mentorId = req.user.id;
 
-    // Find the mentor and populate the accepted students list
-    const mentor = await User.findById(mentorId).populate(
-      "acceptedStudents.student"
-    );
+    // Find all accepted requests for this mentor
+    const acceptedRequests = await Request.find({
+      mentor: mentorId,
+      status: "accepted", //
+    }).populate("student"); // Get full student details
 
-    if (!mentor) {
+    if (!acceptedRequests.length) {
       return res.status(404).json({
         success: false,
-        message: "Mentor not found",
+        message: "No accepted students",
       });
     }
 
-    if (!mentor.acceptedStudents || mentor.acceptedStudents.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No accepted students found",
-      });
-    }
+    // Extract just student data
+    const students = acceptedRequests.map((req) => req.student);
 
-    res.status(200).json({
-      success: true,
-      acceptedStudents: mentor.acceptedStudents, // List of accepted students
-    });
-  } catch (error) {
-    console.error("Fetch Accepted Students Error:", error);
+    res.json({ success: true, students });
+  } catch (err) {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

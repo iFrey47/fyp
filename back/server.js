@@ -70,45 +70,45 @@ const server = app.listen(process.env.PORT || 5000, () => {
 });
 
 // Initialize Socket.IO with the existing HTTP server
-const io = new Server(server); // <-- Updated here
+// Initialize Socket.IO with CORS config
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // Match your frontend URL
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
 // Store active users (mapping usernames to socket IDs)
-let users = {};
+const activeUsers = {}; // { username: socketId }
 
-// Handle socket connections
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
-
-  // When a user registers (e.g., student or mentor logs in)
+  console.log("New connection:", socket.id);
+  // Simple username registration
   socket.on("register", (username) => {
-    users[username] = socket.id;
-    console.log(`User registered: ${username}, socket ID: ${socket.id}`);
+    console.log(`User connected: ${username}`); // Should show real username
+    activeUsers[username] = socket.id;
   });
 
-  // Handle message sending from student to mentor
-  socket.on("send_message", (data) => {
-    const { to, message, from } = data;
-    console.log(`Message from ${from} to ${to}: ${message}`);
+  // Message routing
+  socket.on("send_message", ({ from, to, message }) => {
+    console.log(`Message from ${from} to ${to}`);
 
-    // Check if the recipient (mentor) is online
-    if (users[to]) {
-      // Send the message to the mentor's socket
-      io.to(users[to]).emit("receive_message", { from, message });
-      console.log(`Message sent to ${to}`);
-    } else {
-      console.log(`Recipient ${to} is not online`);
+    if (activeUsers[to]) {
+      io.to(activeUsers[to]).emit("receive_message", { from, message });
     }
+    //  else {
+    //   console.log(`${to} is currently offline`);
+    //   // Optional: Store offline messages in DB here
+    // }
   });
 
-  // Handle disconnection
   socket.on("disconnect", () => {
-    // Find and remove the user from the active list on disconnect
-    for (const [username, socketId] of Object.entries(users)) {
-      if (socketId === socket.id) {
-        delete users[username];
-        console.log(`${username} disconnected and removed from mapping`);
-        break;
+    Object.entries(activeUsers).forEach(([username, id]) => {
+      if (id === socket.id) {
+        delete activeUsers[username];
+        console.log(`User disconnected: ${username}`);
       }
-    }
+    });
   });
 });

@@ -532,8 +532,14 @@ export default function MentorDashboard() {
     }
   };
 
-  const startChat = (username) => {
-    navigate(`/chat/${username}`);
+  // const startChat = (username) => {
+  //   navigate(`/chat/${username}`);
+  // };
+
+  const startChat = (student) => {
+    navigate("/chat", {
+      state: { initialSelectedContact: student.username },
+    });
   };
 
   return (
@@ -658,7 +664,7 @@ export default function MentorDashboard() {
         </div>
       </div>
 
-      {/* Confirmation Dialog (optional modal implementation) */}
+      {/* Confirmation Dialog*/}
       {confirmationVisible && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
           <div className="bg-white rounded-lg p-6 w-96 shadow-lg text-center">
