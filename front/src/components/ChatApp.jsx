@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import ChatInterface from "./ChatInterface";
 
 const ChatApp = ({ currentUser, userType, initialSelectedContact }) => {
+  console.log("Current user prop:", currentUser);
+  console.log("Initial contact prop:", initialSelectedContact);
+
   const [contacts, setContacts] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
 
@@ -18,6 +21,8 @@ const ChatApp = ({ currentUser, userType, initialSelectedContact }) => {
 
       setContacts([newContact]);
       setSelectedContact(newContact);
+
+      console.log("Chat initialized with:", initialSelectedContact);
     }
   }, [initialSelectedContact]);
 

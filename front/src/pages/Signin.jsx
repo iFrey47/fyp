@@ -37,7 +37,15 @@ export default function SignIn() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.user.role); //Fix: Storing correct role
-
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          username: data.user.username,
+          role: data.user.role,
+          email: data.user.email,
+        })
+      );
+      console.log(JSON.parse(localStorage.getItem("user")));
       setLoading(false);
       setError(null);
 

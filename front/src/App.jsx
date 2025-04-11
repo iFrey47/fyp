@@ -10,7 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/ProfilePage";
 import ProfileButton from "./components/ProfileButton";
 import DashboardButton from "./components/DashoardButton";
-import ChatPage from "./pages/CharPage";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
   return (

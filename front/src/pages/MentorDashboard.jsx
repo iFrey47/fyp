@@ -446,7 +446,14 @@ export default function MentorDashboard() {
             }
           );
           const data = await res.json();
-          if (data.success) setAcceptedStudents(data.students);
+          if (data.success) {
+            // Ensure each student has a username at the top level
+            const students = data.students.map((student) => ({
+              ...student,
+              username: student.username || student.user?.username,
+            }));
+            setAcceptedStudents(students);
+          }
         } catch (err) {
           console.error("Error fetching accepted students:", err);
         }
@@ -520,7 +527,13 @@ export default function MentorDashboard() {
         if (action === "accepted") {
           const accepted = requests.find((req) => req._id === requestId);
           if (accepted) {
-            setAcceptedStudents((prev) => [...prev, accepted.student]);
+            // Ensure the student object has username at top level
+            const studentWithUsername = {
+              ...accepted.student,
+              username:
+                accepted.student.username || accepted.student.user?.username,
+            };
+            setAcceptedStudents((prev) => [...prev, studentWithUsername]);
           }
         }
         alert(`Request ${action}`);
@@ -532,14 +545,21 @@ export default function MentorDashboard() {
     }
   };
 
-  // const startChat = (username) => {
-  //   navigate(`/chat/${username}`);
+  // const startChat = (student) => {
+  //   console.log("Student username:", student.username);
+  //   navigate("/chat", {
+  //     state: { recipientUser: student.username },
+  //   });
   // };
 
   const startChat = (student) => {
-    navigate("/chat", {
-      state: { initialSelectedContact: student.username },
-    });
+    const username = student.username || student.user?.username;
+    console.log("Starting chat with:", username);
+    if (!username) {
+      console.error("No username found for student:", student);
+      return;
+    }
+    navigate("/chat", { state: { recipientUser: username } });
   };
 
   return (
@@ -596,10 +616,10 @@ export default function MentorDashboard() {
                     </div>
                   </div>
                   <button
-                    onClick={() => startChat(student.username)}
+                    onClick={() => startChat(student)}
                     className="w-full py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:brightness-110 transition shadow"
                   >
-                    Start Chat
+                    Chat with {student.username}
                   </button>
                 </div>
               ))}

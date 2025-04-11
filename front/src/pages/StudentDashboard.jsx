@@ -170,11 +170,12 @@ export default function StudentDashboard() {
                 {status === "accepted" && (
                   <button
                     className="w-full py-2 mt-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:brightness-110 transition"
-                    onClick={() =>
+                    onClick={() => {
+                      console.log("Mentor username:", mentor.username);
                       navigate("/chat", {
-                        state: { initialSelectedContact: mentor.username },
-                      })
-                    }
+                        state: { recipientUser: mentor.username },
+                      });
+                    }}
                   >
                     Chat
                   </button>

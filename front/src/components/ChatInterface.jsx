@@ -44,8 +44,10 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
       reconnectionAttempts: 3,
     });
 
+    console.log("Registering with username:", currentUser);
     // Register user with socket server
     socket.current.emit("register", currentUser);
+    console.log("Socket registering with:", currentUser); // Should be "iamstudent"
 
     console.log("Socket registered with username:", currentUser); // Verify real username
 

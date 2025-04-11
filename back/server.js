@@ -83,17 +83,13 @@ const io = new Server(server, {
 const activeUsers = {}; // { username: socketId }
 
 io.on("connection", (socket) => {
-  console.log("New connection:", socket.id);
   // Simple username registration
   socket.on("register", (username) => {
-    console.log(`User connected: ${username}`); // Should show real username
     activeUsers[username] = socket.id;
   });
 
   // Message routing
   socket.on("send_message", ({ from, to, message }) => {
-    console.log(`Message from ${from} to ${to}`);
-
     if (activeUsers[to]) {
       io.to(activeUsers[to]).emit("receive_message", { from, message });
     }
