@@ -10,7 +10,7 @@ const authMiddleware = (req, res, next) => {
     req.user = {
       id: decoded.id,
       role: decoded.role,
-      username: decoded.username, // ⭐️ Add this lin
+      username: decoded.username,
     };
     next();
   } catch (error) {
