@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { Trash2, AlertCircle, CheckCircle, Loader } from "lucide-react";
 
 export default function AddFypIdea() {
   const navigate = useNavigate();
@@ -8,6 +9,8 @@ export default function AddFypIdea() {
   const [existingIdeas, setExistingIdeas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(null);
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const userId = localStorage.getItem("userId");
@@ -29,7 +32,7 @@ export default function AddFypIdea() {
     } catch (err) {
       console.error("Fetch error:", err);
     }
-  }, [token]); // Add token as dependency
+  }, [token]);
 
   // Check role and fetch existing ideas
   useEffect(() => {
@@ -38,10 +41,13 @@ export default function AddFypIdea() {
     } else {
       fetchExistingIdeas();
     }
-  }, [role, navigate, fetchExistingIdeas]); // Add fetchExistingIdeas to dependencies
+  }, [role, navigate, fetchExistingIdeas]);
 
   const handleDelete = async (ideaId) => {
     if (!window.confirm("Are you sure you want to delete this idea?")) return;
+
+    setDeleteLoading(ideaId);
+    setError("");
 
     try {
       const res = await fetch(
@@ -58,10 +64,14 @@ export default function AddFypIdea() {
 
       if (!res.ok) throw new Error(data.error || "Delete failed");
 
-      alert("Idea deleted successfully!");
+      setSuccess("Idea deleted successfully!");
+      setTimeout(() => setSuccess(""), 3000);
       fetchExistingIdeas(); // Refresh the list
     } catch (err) {
       setError(err.message);
+      setTimeout(() => setError(""), 3000);
+    } finally {
+      setDeleteLoading(null);
     }
   };
 
@@ -69,6 +79,7 @@ export default function AddFypIdea() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setSuccess("");
 
     try {
       // First check for duplicates
@@ -87,6 +98,7 @@ export default function AddFypIdea() {
         setError(
           "Similar project idea already exists! Please modify your idea."
         );
+        setIsLoading(false);
         return;
       }
 
@@ -103,17 +115,21 @@ export default function AddFypIdea() {
       const submitData = await submitRes.json();
 
       if (!submitRes.ok) {
-        if (submitData.error.includes("already submitted")) {
-          alert("You can only submit one project idea!");
-          navigate("/student-dashboard");
+        if (submitData.error?.includes("already submitted")) {
+          setError("You can only submit one project idea!");
+          setTimeout(() => {
+            navigate("/student-dashboard");
+          }, 2000);
+        } else {
+          throw new Error(submitData.error || "Failed to submit idea");
         }
-        throw new Error(submitData.error);
+      } else {
+        setSuccess("Idea submitted successfully!");
+        fetchExistingIdeas(); // Refresh the list after submission
+        setTitle("");
+        setDescription("");
+        setTimeout(() => setSuccess(""), 3000);
       }
-
-      alert("Idea submitted successfully!");
-      fetchExistingIdeas(); // Refresh the list after submission
-      setTitle("");
-      setDescription("");
     } catch (err) {
       setError("Failed to submit idea. Please try again.");
       console.error("Submission error:", err);
@@ -123,17 +139,38 @@ export default function AddFypIdea() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-white p-10">
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
-          Submit Your FYP Idea
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-gray-50 to-white p-6 md:p-10">
+      <div className="max-w-5xl mx-auto">
+        <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
+          Final Year Project Ideas
         </h2>
+        <p className="text-center text-gray-600 mb-8">
+          Submit and manage your project proposals
+        </p>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded flex items-center">
+            <AlertCircle className="mr-2 flex-shrink-0" size={20} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded flex items-center">
+            <CheckCircle className="mr-2 flex-shrink-0" size={20} />
+            <span>{success}</span>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Idea Submission Form */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
+          <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100">
+            <h3 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">
+              Submit New Proposal
+            </h3>
+
             <form onSubmit={handleSubmit}>
-              <div className="mb-4">
+              <div className="mb-5">
                 <label className="block text-gray-700 font-medium mb-2">
                   Project Title
                 </label>
@@ -141,7 +178,8 @@ export default function AddFypIdea() {
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Enter a descriptive title"
                   required
                 />
               </div>
@@ -153,61 +191,83 @@ export default function AddFypIdea() {
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent h-32"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-40"
+                  placeholder="Describe your project idea, goals, and expected outcomes"
                   required
                 />
               </div>
 
-              {error && (
-                <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
-                  {error}
-                </div>
-              )}
-
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex justify-center items-center"
               >
-                {isLoading ? "Submitting..." : "Submit Idea"}
+                {isLoading ? (
+                  <>
+                    <Loader className="animate-spin mr-2" size={18} />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Proposal"
+                )}
               </button>
             </form>
           </div>
 
           {/* Existing Ideas List */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">
-              Existing FYP Ideas
+          <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100">
+            <h3 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">
+              Existing Proposals
             </h3>
 
             {existingIdeas.length === 0 ? (
-              <p className="text-gray-500">No existing ideas found.</p>
+              <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+                <p className="text-center">No existing proposals found.</p>
+                <p className="text-center text-sm mt-2">
+                  Be the first to submit a project idea!
+                </p>
+              </div>
             ) : (
               <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
                 {existingIdeas.map((idea) => (
                   <div
                     key={idea._id}
-                    className="p-4 border-b border-gray-100 last:border-0 relative"
+                    className="p-5 border border-gray-100 rounded-lg hover:shadow-md transition-all bg-gray-50"
                   >
-                    <h4 className="font-medium text-lg text-gray-800">
-                      {idea.title}
-                    </h4>
-                    <p className="text-gray-600 mt-1 text-sm">
-                      {idea.description}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-2">
-                      Submitted by: {idea.submittedBy?.username || "Unknown"}
-                    </p>
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-medium text-lg text-gray-800">
+                        {idea.title}
+                      </h4>
 
-                    {/* Delete button - only shows for the idea owner */}
-                    {idea.submittedBy?._id === userId && (
-                      <button
-                        onClick={() => handleDelete(idea._id)}
-                        className="mt-2 px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition-colors"
-                      >
-                        Delete Idea
-                      </button>
-                    )}
+                      {/* Delete button - only shows for the idea owner */}
+                      {idea.submittedBy?._id === userId && (
+                        <button
+                          onClick={() => handleDelete(idea._id)}
+                          disabled={deleteLoading === idea._id}
+                          className="flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-full hover:bg-red-100 transition-colors"
+                          title="Delete idea"
+                        >
+                          {deleteLoading === idea._id ? (
+                            <Loader className="animate-spin" size={18} />
+                          ) : (
+                            <Trash2 size={18} />
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    <p className="text-gray-600 mt-2">{idea.description}</p>
+
+                    <div className="mt-3 flex items-center text-xs text-gray-500">
+                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                        {idea.submittedBy?.username || "Unknown"}
+                      </span>
+                      <span className="ml-2">
+                        {new Date(
+                          idea.createdAt || Date.now()
+                        ).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
