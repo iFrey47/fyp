@@ -16,6 +16,13 @@ import {
 } from "../controllers/authController.js";
 import { signUp } from "../controllers/authController.js";
 
+import {
+  checkDuplicateIdea,
+  submitIdea,
+  getAllProjects,
+  deleteIdea,
+} from "../controllers/projectIdeaController.js";
+
 const router = Router();
 
 //related to the authentication and authorization
@@ -41,5 +48,15 @@ router.get("/requests", authMiddleware, fetchRequests);
 router.put("/request/:requestId", authMiddleware, updateRequestStatus);
 
 router.get("/accepted-students", authMiddleware, fetchAcceptedStudents);
+
+// Project Ideas shi
+
+router.post("/checkID", authMiddleware, checkDuplicateIdea);
+
+router.post("/submitID", authMiddleware, submitIdea);
+
+router.get("/projects", authMiddleware, getAllProjects);
+
+router.delete("/projects/:id", authMiddleware, deleteIdea);
 
 export default router;

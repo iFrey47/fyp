@@ -587,7 +587,7 @@ export default function MentorDashboard() {
               disabled={loading}
               className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition shadow-sm"
             >
-              {loading ? "Updating..." : "Toggle Availability"}
+              {loading ? "Updating..." : "Set your Status"}
             </button>
           </div>
         </div>

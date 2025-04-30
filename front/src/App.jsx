@@ -11,6 +11,7 @@ import Profile from "./pages/ProfilePage";
 import ProfileButton from "./components/ProfileButton";
 import DashboardButton from "./components/DashoardButton";
 import ChatPage from "./pages/ChatPage";
+import AddFypIdea from "./pages/AddFypIdea";
 
 function App() {
   return (
@@ -42,6 +43,11 @@ function App() {
         {/* <Route element={<ProtectedRoute />}>
           <Route path="/chat" element={<ChatPage />} />
         </Route> */}
+
+        <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
+          <Route path="/add-fyp-idea" element={<AddFypIdea />} />
+          <Route path="/student-dashboard" element={<StudentDashboard />} />
+        </Route>
 
         <Route element={<ProtectedRoute allowedRoles={["supervisor"]} />}>
           <Route

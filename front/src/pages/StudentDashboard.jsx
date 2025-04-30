@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -125,6 +126,15 @@ export default function StudentDashboard() {
       <h2 className="text-4xl font-extrabold mb-12 text-center text-gray-800">
         Find Your Mentor
       </h2>
+
+      <div className="flex justify-center mb-8">
+        <Link
+          to="/add-fyp-idea"
+          className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium"
+        >
+          + Add Your FYP Idea
+        </Link>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
         {mentors.map((mentor) => {
