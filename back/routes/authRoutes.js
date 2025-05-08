@@ -1,5 +1,8 @@
 import { Router } from "express";
-import authMiddleware from "../middlewares/authMiddleware.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
+
+import { validateObjectId } from "../middlewares/authMiddleware.js";
+
 import {
   deleteAccount,
   fetchAcceptedStudents,
@@ -21,42 +24,47 @@ import {
   submitIdea,
   getAllProjects,
   deleteIdea,
+  recommendIdeas,
 } from "../controllers/projectIdeaController.js";
 
 const router = Router();
 
-//related to the authentication and authorization
+// Authentication and authorization
 router.post("/sign-up", signUp);
 router.post("/sign-in", signIn);
 router.get("/profile", authMiddleware, getProfile);
 router.put("/update-profile", authMiddleware, updateProfile);
 router.delete("/delete-profile", authMiddleware, deleteAccount);
 
-//mentors and roles
+// Mentors and roles
 router.get("/user-role", authMiddleware, getUserRole);
 router.get("/mentors", authMiddleware, getAllMentors);
-// Route to get availability status of a mentor
 router.get("/availability", authMiddleware, getAvailability);
-
-// Route to toggle availability status of a mentor
 router.put("/toggle-availability", authMiddleware, toggleAvailability);
 
-// send or accept request bw mentors and the studs
+// Mentorship requests
 router.post("/send-request", authMiddleware, sendRequest);
-// router.put("/request/:requestId", authMiddleware, acceptRequest);
 router.get("/requests", authMiddleware, fetchRequests);
 router.put("/request/:requestId", authMiddleware, updateRequestStatus);
-
 router.get("/accepted-students", authMiddleware, fetchAcceptedStudents);
 
-// Project Ideas shi
-
+// Project Ideas
 router.post("/checkID", authMiddleware, checkDuplicateIdea);
-
 router.post("/submitID", authMiddleware, submitIdea);
-
 router.get("/projects", authMiddleware, getAllProjects);
+router.delete(
+  "/delete-projects/:id",
+  authMiddleware,
+  validateObjectId,
+  deleteIdea
+);
 
-router.delete("/projects/:id", authMiddleware, deleteIdea);
+// NEW AI-Powered Recommendation Route
+router.get(
+  "/projects/recommend/:ideaId",
+  authMiddleware,
+  validateObjectId,
+  recommendIdeas
+);
 
 export default router;

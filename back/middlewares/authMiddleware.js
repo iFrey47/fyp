@@ -1,5 +1,13 @@
 import jwt from "jsonwebtoken";
 
+const validateObjectId = (req, res, next) => {
+  const id = req.params.id || req.params.ideaId;
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(400).json({ error: "Invalid ID format" });
+  }
+  next();
+};
+
 const authMiddleware = (req, res, next) => {
   const token = req.header("Authorization");
   if (!token)
@@ -18,4 +26,4 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-export default authMiddleware;
+export { authMiddleware, validateObjectId };
