@@ -7,6 +7,7 @@ import {
   Loader,
   Sparkles,
 } from "lucide-react";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default function AddFypIdea() {
   const navigate = useNavigate();
@@ -23,6 +24,9 @@ export default function AddFypIdea() {
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [duplicateMatches, setDuplicateMatches] = useState([]);
   const [checkingDuplicate, setCheckingDuplicate] = useState(false);
+  const [aiRecommendations, setAiRecommendations] = useState([]);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const userId = localStorage.getItem("userId");
@@ -34,6 +38,114 @@ export default function AddFypIdea() {
     console.log("Recommendations:", recommendations);
     console.log("Last Queried:", lastQueried);
   }, [userId, existingIdeas, recommendations, lastQueried]);
+
+  const genAI = new GoogleGenerativeAI(
+    "AIzaSyDIesxDzQnSHh2psaJnLWQxxfQAHtnJ52o"
+  );
+
+  const fetchAiRecommendations = async () => {
+    setIsAiLoading(true);
+    setAiRecommendations([]);
+    try {
+      // const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        generationConfig: {
+          temperature: 1, // Higher temperature for more randomness
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 256,
+        },
+      });
+
+      const prompt = `Suggest 5 unique and innovative final-year project ideas for Computer Science students. Return each idea on a new line prefixed with a bullet point (-). Include both the project title and a brief 5-7 word description. Timestamp: ${Date.now()}`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+
+      // Format the response
+      const ideas = text
+        .split("\n")
+        .filter((line) => line.trim().startsWith("-"))
+        .map((idea) => idea.replace(/^-/, "").trim());
+
+      //     setAiRecommendations(
+      //       ideas.length > 0
+      //         ? ideas
+      //         : [
+      //             "- AI-based course recommendation system",
+      //             "- Blockchain student credential verifier",
+      //             "- AR campus navigation assistant",
+      //             "- IoT classroom environment monitor",
+      //             "- Voice-controlled lecture transcription system",
+      //           ]
+      //     );
+      //   } catch (error) {
+      //     console.error("Gemini error:", error);
+      //     setAiRecommendations([
+      //       "AI-based plagiarism detection tool",
+      //       "Smart attendance using facial recognition",
+      //       "E-commerce recommendation engine",
+      //       "Mental health chatbot for students",
+      //       "Automated exam scheduling system",
+      //     ]);
+      //   } finally {
+      //     setIsAiLoading(false);
+      //   }
+      // };
+
+      if (ideas.length > 0) {
+        setAiRecommendations(ideas);
+      } else {
+        // Generate random fallback ideas if API response format was unexpected
+        const fallbackIdeas = [
+          "AI-based course recommendation system - Personalized learning path using ML",
+          "Blockchain student credential verifier - Secure verification of academic achievements",
+          "AR campus navigation assistant - Virtual guide for university facilities",
+          "IoT classroom environment monitor - Optimize learning conditions automatically",
+          "Voice-controlled lecture transcription system - Accessible notes for all students",
+        ];
+
+        // Shuffle the fallback ideas to ensure randomness
+        setAiRecommendations(shuffleArray([...fallbackIdeas]));
+      }
+    } catch (error) {
+      console.error("Gemini error:", error);
+      // Generate random fallback ideas if API call fails
+      const fallbackIdeas = [
+        "AI-based plagiarism detection tool - Find similarities between documents",
+        "Smart attendance using facial recognition - Automate classroom attendance tracking",
+        "E-commerce recommendation engine - Personalized shopping experience",
+        "Mental health chatbot for students - Support system using NLP",
+        "Automated exam scheduling system - Optimize timetables using algorithms",
+        "Virtual reality laboratory simulator - Practice experiments safely",
+        "Blockchain-based academic credential system - Tamper-proof certificates",
+        "ML-powered career guidance platform - Data-driven career decisions",
+        "Predictive analytics for student performance - Early intervention system",
+        "Augmented reality campus tour - Interactive exploration experience",
+      ];
+
+      // Randomly select 5 unique ideas from the fallback list
+      setAiRecommendations(getRandomElements(fallbackIdeas, 5));
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  const getRandomElements = (array, count) => {
+    const shuffled = shuffleArray([...array]);
+    return shuffled.slice(0, count);
+  };
+
+  // Helper function to shuffle an array
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
 
   // Wrap fetchExistingIdeas in useCallback to prevent unnecessary recreations
   const fetchExistingIdeas = useCallback(async () => {
@@ -256,7 +368,6 @@ export default function AddFypIdea() {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-gray-50 to-white p-6 md:p-10">
       <div className="max-w-5xl mx-auto">
@@ -266,11 +377,6 @@ export default function AddFypIdea() {
         <p className="text-center text-gray-600 mb-8">
           Submit and manage your project proposals
         </p>
-
-        {/* Debug info - remove in production */}
-        <div className="mb-4 p-2 bg-gray-100 text-xs">
-          <p>Current user ID: {userId || "Not logged in"}</p>
-        </div>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded flex items-center">
@@ -374,6 +480,48 @@ export default function AddFypIdea() {
                 )}
               </button>
             </form>
+
+            {/* AI Recommendation Section */}
+            <div className="mt-6">
+              <button
+                onClick={fetchAiRecommendations}
+                disabled={isAiLoading}
+                className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center"
+              >
+                {isAiLoading ? (
+                  <Loader className="animate-spin mr-2" size={18} />
+                ) : (
+                  <Sparkles className="mr-2" size={18} />
+                )}
+                Generate AI Suggestions
+              </button>
+
+              {aiRecommendations.length > 0 && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h4 className="font-medium text-gray-800 mb-3 flex items-center">
+                    <Sparkles className="mr-2 text-purple-500" size={18} />
+                    AI Project Suggestions
+                  </h4>
+                  <ul className="space-y-2">
+                    {aiRecommendations.map((idea, index) => (
+                      <li
+                        key={index}
+                        className="p-3 bg-white rounded-md border border-gray-100 hover:bg-purple-50 transition-colors cursor-pointer"
+                        onClick={() => {
+                          const parts = idea.split(":");
+                          setTitle(parts[0].trim());
+                          setDescription(
+                            parts.length > 1 ? parts[1].trim() : ""
+                          );
+                        }}
+                      >
+                        <span className="text-gray-800">{idea}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Existing Ideas List */}
@@ -402,7 +550,6 @@ export default function AddFypIdea() {
                       </h4>
 
                       <div className="flex gap-2">
-                        {/* Recommendation Button */}
                         <button
                           onClick={() => fetchRecommendations(idea._id)}
                           disabled={recommendLoading === idea._id}
@@ -416,7 +563,6 @@ export default function AddFypIdea() {
                           )}
                         </button>
 
-                        {/* Delete button - show for ALL ideas during development */}
                         <button
                           onClick={() => handleDelete(idea._id)}
                           disabled={deleteLoading === idea._id}
@@ -429,22 +575,6 @@ export default function AddFypIdea() {
                             <Trash2 size={18} />
                           )}
                         </button>
-
-                        {/* Delete button - only show for the owner's ideas */}
-                        {/* {idea.submittedBy?._id === userId && (
-                          <button
-                            onClick={() => handleDelete(idea._id)}
-                            disabled={deleteLoading === idea._id}
-                            className="flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-full hover:bg-red-100 transition-colors"
-                            title="Delete idea"
-                          >
-                            {deleteLoading === idea._id ? (
-                              <Loader className="animate-spin" size={18} />
-                            ) : (
-                              <Trash2 size={18} />
-                            )}
-                          </button>
-                        )} */}
                       </div>
                     </div>
 
@@ -459,13 +589,11 @@ export default function AddFypIdea() {
                       </span>
                     </div>
 
-                    {/* Owner info for debugging */}
                     <div className="mt-1 text-xs text-gray-400">
                       Idea ID: {idea._id} | Owner ID:{" "}
                       {idea.submittedBy?._id || "none"}
                     </div>
 
-                    {/* Recommendations Section - Show based on lastQueried */}
                     {recommendations.length > 0 && lastQueried === idea._id && (
                       <div className="mt-4 pt-3 border-t border-gray-200">
                         <h5 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
