@@ -101,6 +101,7 @@ const preprocessText = (text) => {
 };
 
 // Cosine similarity function - looks good
+// formula= (A · B) / (||A|| * ||B||)
 const cosineSimilarity = (vecA, vecB) => {
   const dotProduct = vecA.reduce((sum, a, i) => sum + a * (vecB[i] || 0), 0);
   const magA = Math.sqrt(vecA.reduce((sum, a) => sum + a * a, 0));

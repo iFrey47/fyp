@@ -8,6 +8,7 @@ const validateObjectId = (req, res, next) => {
   next();
 };
 
+// For the authorization
 const authMiddleware = (req, res, next) => {
   const token = req.header("Authorization");
   if (!token)

@@ -263,6 +263,7 @@ export const getAvailability = async (req, res) => {
   }
 };
 
+// send friend request
 export const sendRequest = async (req, res) => {
   try {
     const studentId = req.user.id;
@@ -330,6 +331,7 @@ export const sendRequest = async (req, res) => {
   }
 };
 
+// either accepted or rejected
 export const updateRequestStatus = async (req, res) => {
   try {
     const mentorId = req.user.id;

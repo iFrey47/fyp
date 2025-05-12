@@ -70,31 +70,6 @@ export default function AddFypIdea() {
         .filter((line) => line.trim().startsWith("-"))
         .map((idea) => idea.replace(/^-/, "").trim());
 
-      //     setAiRecommendations(
-      //       ideas.length > 0
-      //         ? ideas
-      //         : [
-      //             "- AI-based course recommendation system",
-      //             "- Blockchain student credential verifier",
-      //             "- AR campus navigation assistant",
-      //             "- IoT classroom environment monitor",
-      //             "- Voice-controlled lecture transcription system",
-      //           ]
-      //     );
-      //   } catch (error) {
-      //     console.error("Gemini error:", error);
-      //     setAiRecommendations([
-      //       "AI-based plagiarism detection tool",
-      //       "Smart attendance using facial recognition",
-      //       "E-commerce recommendation engine",
-      //       "Mental health chatbot for students",
-      //       "Automated exam scheduling system",
-      //     ]);
-      //   } finally {
-      //     setIsAiLoading(false);
-      //   }
-      // };
-
       if (ideas.length > 0) {
         setAiRecommendations(ideas);
       } else {
