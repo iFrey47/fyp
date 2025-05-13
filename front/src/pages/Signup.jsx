@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
@@ -8,7 +8,7 @@ export default function SignUp() {
   const [fadeIn, setFadeIn] = useState(false);
   const navigate = useNavigate();
 
-  useState(() => {
+  useEffect(() => {
     setFadeIn(true);
   }, []);
 
