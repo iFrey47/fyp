@@ -12,6 +12,7 @@ import ProfileButton from "./components/ProfileButton";
 import DashboardButton from "./components/DashoardButton";
 import ChatPage from "./pages/ChatPage";
 import AddFypIdea from "./pages/AddFypIdea";
+import { Navigate } from "react-router-dom";
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
       <DashboardButton />{" "}
       {/* Dashboard button, appears only on dashboard pages or profile page */}
       <Routes>
+        <Route path="/" element={<Navigate to="/sign-up" replace />} />
+
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/chat" element={<ChatPage />} />
