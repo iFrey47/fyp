@@ -102,22 +102,22 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="p-8 max-w-md w-full bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100">
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-[#0a0a23] to-[#1a1a3c] p-8 text-white">
+      <div className="w-full max-w-lg p-8 space-y-8 bg-[#1f1f3a] border border-[#2e2e4d] rounded-2xl shadow-2xl">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Profile</h1>
-          <p className="text-gray-500">Update your account details</p>
+          <h1 className="text-4xl font-extrabold text-white mb-2">Profile</h1>
+          <p className="text-lg text-gray-400">Update your account details</p>
         </div>
 
-        <form onSubmit={handleUpdate} className="flex flex-col gap-5">
+        <form onSubmit={handleUpdate} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-300 mb-1">
               Name
             </label>
             <input
               type="text"
               placeholder="Enter your name"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-5 py-4 bg-[#2a2a45] text-white rounded-lg focus:outline-none focus:ring-4 focus:ring-purple-700 border border-[#3a3a5c] shadow-inner transition"
               id="name"
               value={formData.name || ""}
               onChange={handleChange}
@@ -125,13 +125,13 @@ export default function Profile() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-300 mb-1">
               New Password
             </label>
             <input
               type="password"
               placeholder="Enter new password"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-5 py-4 bg-[#2a2a45] text-white rounded-lg focus:outline-none focus:ring-4 focus:ring-purple-700 border border-[#3a3a5c] shadow-inner transition"
               id="password"
               value={formData.password || ""}
               onChange={handleChange}
@@ -141,7 +141,7 @@ export default function Profile() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-[0.98] transition disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full py-4 mt-6 bg-gradient-to-r from-purple-700 to-indigo-600 text-white rounded-lg font-semibold hover:brightness-110 active:scale-95 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -163,16 +163,16 @@ export default function Profile() {
           </button>
         </form>
 
-        <div className="mt-8 space-y-3">
+        <div className="space-y-4">
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="w-full bg-red-500/10 text-red-600 py-3 rounded-lg font-medium hover:bg-red-500/20 transition active:scale-[0.98]"
+            className="w-full py-4 bg-red-700 text-white rounded-lg font-semibold hover:bg-red-800 active:scale-95 transition"
           >
             Delete Account
           </button>
           <button
             onClick={handleLogout}
-            className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-200 transition active:scale-[0.98]"
+            className="w-full py-4 bg-[#3a3a5c] text-white rounded-lg font-semibold hover:bg-[#4a4a6d] active:scale-95 transition"
           >
             Logout
           </button>
@@ -180,12 +180,12 @@ export default function Profile() {
 
         {/* Messages */}
         {error && (
-          <p className="mt-6 p-3 bg-red-50 text-red-600 text-center rounded-lg">
+          <p className="mt-4 p-4 bg-red-900 text-red-300 text-center rounded-lg shadow-md">
             {error}
           </p>
         )}
         {success && (
-          <p className="mt-6 p-3 bg-green-50 text-green-600 text-center rounded-lg">
+          <p className="mt-4 p-4 bg-green-900 text-green-300 text-center rounded-lg shadow-md">
             {success}
           </p>
         )}
@@ -193,24 +193,24 @@ export default function Profile() {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center p-4">
-          <div className="bg-white p-6 rounded-xl max-w-sm w-full animate-fade-in">
-            <h2 className="text-xl font-bold text-gray-800 mb-3">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-6 z-50">
+          <div className="bg-[#1f1f3a] border border-[#3a3a5c] p-6 rounded-2xl max-w-sm w-full shadow-2xl">
+            <h2 className="text-2xl font-bold text-white mb-4">
               Confirm Delete
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-400 mb-6">
               Are you sure? This will permanently delete your account.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition"
+                className="w-full py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="flex-1 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                className="w-full py-3 bg-red-700 text-white rounded-lg hover:bg-red-800 transition"
               >
                 Delete
               </button>

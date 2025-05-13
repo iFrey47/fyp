@@ -1,0 +1,4 @@
+body {
+  background-color: #111827; /* Fallback for gradient */
+  transition: background-color 0.5s ease;
+}

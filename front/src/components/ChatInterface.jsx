@@ -111,22 +111,22 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#2e2d3e] text-white overflow-hidden">
       {/* Header */}
-      <div className="bg-white border-b shadow-sm p-4 flex-shrink-0">
+      <div className="bg-[#1e1e2f] border-b border-gray-700 p-4 shadow-sm flex-shrink-0">
         <div className="flex items-center">
-          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-lg">
+          <div className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-semibold text-lg">
             {recipientUser.charAt(0).toUpperCase()}
           </div>
           <div className="ml-3">
-            <h2 className="font-medium text-gray-800">{recipientUser}</h2>
+            <h2 className="font-medium">{recipientUser}</h2>
           </div>
         </div>
       </div>
 
-      {/* Messages area */}
+      {/* Messages */}
       <div
-        className="flex-1 p-4 overflow-y-auto bg-gray-100"
+        className="flex-1 p-4 overflow-y-auto"
         style={{ overscrollBehavior: "contain" }}
       >
         <div className="space-y-4">
@@ -145,14 +145,14 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
                 <div
                   className={`max-w-xs md:max-w-md rounded-lg px-4 py-2 ${
                     msg.isMine
-                      ? "bg-blue-600 text-white rounded-br-none"
-                      : "bg-white text-gray-800 rounded-bl-none shadow"
+                      ? "bg-purple-600 text-white rounded-br-none"
+                      : "bg-[#3a3b5a] text-gray-200 rounded-bl-none"
                   }`}
                 >
                   <p>{msg.message}</p>
                   <span
                     className={`text-xs mt-1 block ${
-                      msg.isMine ? "text-blue-200" : "text-gray-500"
+                      msg.isMine ? "text-purple-300" : "text-gray-400"
                     }`}
                   >
                     {new Date().toLocaleTimeString([], {
@@ -168,20 +168,20 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
         </div>
       </div>
 
-      {/* Message input */}
-      <div className="bg-white border-t p-4 flex-shrink-0">
+      {/* Message Input */}
+      <div className="bg-[#1e1e2f] border-t border-gray-700 p-4 flex-shrink-0">
         <form onSubmit={sendMessage} className="flex">
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 border rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 bg-[#3c3e5c] text-white border-none px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400"
             autoFocus
           />
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-r-lg transition-colors"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-r-lg transition"
           >
             Send
           </button>

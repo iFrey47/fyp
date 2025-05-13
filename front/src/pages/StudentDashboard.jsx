@@ -122,15 +122,15 @@ export default function StudentDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-white p-10">
-      <h2 className="text-4xl font-extrabold mb-12 text-center text-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a23] to-[#1a1a3c] p-10 text-white">
+      <h2 className="text-5xl font-extrabold mb-12 text-center text-white tracking-tight">
         Find Your Mentor
       </h2>
 
-      <div className="flex justify-center mb-8">
+      <div className="flex justify-center mb-10">
         <Link
           to="/add-fyp-idea"
-          className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium"
+          className="px-8 py-4 bg-gradient-to-r from-purple-700 to-indigo-600 text-white rounded-full shadow-lg hover:scale-105 transition-all duration-300 font-semibold"
         >
           + Add Your FYP Idea
         </Link>
@@ -144,26 +144,26 @@ export default function StudentDashboard() {
           return (
             <div
               key={mentor._id}
-              className="bg-white/60 backdrop-blur-md border border-gray-200 shadow-lg rounded-2xl p-6 hover:shadow-xl transition-all duration-300"
+              className="bg-[#22223a] shadow-xl rounded-xl p-6 hover:scale-105 transition-all duration-300 hover:shadow-2xl border border-[#2e2e4d]"
             >
-              <div className="flex items-center gap-4 mb-5">
-                <div className="w-12 h-12 rounded-full bg-purple-600 text-white flex items-center justify-center text-lg font-bold shadow-inner">
+              <div className="flex items-center gap-5 mb-5">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-r from-purple-700 to-indigo-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg">
                   {mentor.username[0]?.toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800">
+                  <h3 className="text-2xl font-semibold text-white">
                     {mentor.username}
                   </h3>
-                  <p className="text-sm text-gray-500">{mentor.email}</p>
+                  <p className="text-sm text-gray-400">{mentor.email}</p>
                 </div>
               </div>
 
               <div className="mb-4">
                 <span
-                  className={`inline-block px-3 py-1 text-xs font-bold uppercase tracking-wide rounded-full ${
+                  className={`inline-block px-4 py-1 text-sm font-bold uppercase tracking-wide rounded-full ${
                     isAvailable
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
+                      ? "bg-green-900 text-green-300"
+                      : "bg-red-900 text-red-300"
                   }`}
                 >
                   {isAvailable ? "Available" : "Not Available"}
@@ -172,14 +172,14 @@ export default function StudentDashboard() {
 
               <div>
                 {status === "pending" && (
-                  <p className="text-yellow-600 font-medium animate-pulse">
+                  <p className="text-yellow-400 font-medium animate-pulse">
                     Pending Request...
                   </p>
                 )}
 
                 {status === "accepted" && (
                   <button
-                    className="w-full py-2 mt-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:brightness-110 transition"
+                    className="w-full py-3 mt-4 bg-gradient-to-r from-purple-700 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all duration-200"
                     onClick={() => {
                       console.log("Mentor username:", mentor.username);
                       navigate("/chat", {
@@ -197,7 +197,7 @@ export default function StudentDashboard() {
 
                 {!status && isAvailable && (
                   <button
-                    className="w-full py-2 mt-2 bg-gradient-to-r from-purple-500 to-purple-700 text-white rounded-xl hover:scale-[1.02] transition-transform"
+                    className="w-full py-3 mt-4 bg-gradient-to-r from-indigo-600 to-purple-700 text-white rounded-xl hover:scale-[1.03] transition-transform"
                     onClick={() => showConfirmation(mentor._id)}
                     disabled={loading}
                   >
@@ -212,12 +212,12 @@ export default function StudentDashboard() {
 
       {/* Confirmation Modal */}
       {confirmationVisible && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
-          <div className="relative bg-white rounded-lg shadow-xl max-w-md mx-auto p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+          <div className="bg-[#1f1f3a] rounded-xl shadow-xl max-w-lg mx-auto p-8 border border-[#2e2e4d] text-white">
             <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-r from-purple-700 to-indigo-600 mb-6">
                 <svg
-                  className="h-6 w-6 text-purple-600"
+                  className="h-8 w-8 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -231,26 +231,28 @@ export default function StudentDashboard() {
                 </svg>
               </div>
 
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-xl font-medium text-white mb-4">
                 Send Mentorship Request?
               </h3>
 
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-base text-gray-400 mb-6">
                 You are about to send a mentorship request to{" "}
-                {currentMentor?.username}. They will be notified and can accept
-                or decline your request.
+                <span className="text-white font-semibold">
+                  {currentMentor?.username}
+                </span>
+                . They will be notified and can accept or decline your request.
               </p>
 
-              <div className="flex justify-center space-x-4">
+              <div className="flex justify-center space-x-6">
                 <button
                   onClick={closeConfirmation}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  className="px-5 py-2 text-base font-semibold text-white bg-transparent border border-gray-500 rounded-lg hover:bg-gray-700"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmAction}
-                  className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                  className="px-5 py-2 text-base font-semibold text-white bg-gradient-to-r from-purple-700 to-indigo-600 rounded-lg hover:brightness-110"
                 >
                   Yes, Send Request
                 </button>

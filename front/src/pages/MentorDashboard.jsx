@@ -177,38 +177,40 @@ export default function MentorDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-white p-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            Mentor Dashboard
-          </h1>
-          <div className="flex items-center">
-            <div className="flex items-center mr-4">
-              <span className="mr-2 text-gray-700">Status:</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white p-8">
+      <div className="max-w-6xl mx-auto space-y-12">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-extrabold text-white mb-1">
+              Mentor Dashboard
+            </h1>
+            <div className="flex items-center gap-3 text-sm text-gray-300">
+              <span>Status:</span>
               <span
-                className={`inline-block px-3 py-1 text-xs font-bold uppercase tracking-wide rounded-full ${
-                  isAvailable
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
-                }`}
+                className={`px-3 py-1 rounded-full font-semibold tracking-wide text-xs uppercase
+              ${
+                isAvailable
+                  ? "bg-green-500/20 text-green-300"
+                  : "bg-red-500/20 text-red-300"
+              }`}
               >
                 {isAvailable ? "Available" : "Not Available"}
               </span>
             </div>
-            <button
-              onClick={toggleAvailability}
-              disabled={loading}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition shadow-sm"
-            >
-              {loading ? "Updating..." : "Set your Status"}
-            </button>
           </div>
+          <button
+            onClick={toggleAvailability}
+            disabled={loading}
+            className="px-5 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl transition disabled:opacity-60"
+          >
+            {loading ? "Updating..." : "Set Your Status"}
+          </button>
         </div>
 
-        {/* Students You Can Chat With */}
-        <div className="mb-12 bg-white/60 backdrop-blur-md rounded-2xl p-6 shadow-lg">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+        {/* Accepted Students Section */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl">
+          <h2 className="text-2xl font-semibold text-white mb-6">
             Students You Can Chat With
           </h2>
           {acceptedStudents.length > 0 ? (
@@ -216,22 +218,22 @@ export default function MentorDashboard() {
               {acceptedStudents.map((student) => (
                 <div
                   key={student._id}
-                  className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition"
+                  className="bg-white/10 border border-white/10 rounded-xl p-5 shadow hover:shadow-lg transition"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-300 font-bold flex items-center justify-center">
                       {student.username?.[0]?.toUpperCase()}
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-white">
                         {student.username}
                       </h3>
-                      <p className="text-sm text-gray-500">{student.email}</p>
+                      <p className="text-sm text-gray-400">{student.email}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => startChat(student)}
-                    className="w-full py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:brightness-110 transition shadow"
+                    className="w-full py-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:brightness-110 text-white rounded-xl shadow transition"
                   >
                     Chat with {student.username}
                   </button>
@@ -239,18 +241,16 @@ export default function MentorDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <p>
-                No accepted students yet. Accept mentorship requests to start
-                chatting.
-              </p>
-            </div>
+            <p className="text-center text-gray-400">
+              No accepted students yet. Accept mentorship requests to start
+              chatting.
+            </p>
           )}
         </div>
 
         {/* Pending Requests Section */}
-        <div className="bg-white/60 backdrop-blur-md rounded-2xl p-6 shadow-lg">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl">
+          <h2 className="text-2xl font-semibold text-white mb-6">
             Pending Mentorship Requests
           </h2>
           {requests.length > 0 ? (
@@ -258,22 +258,22 @@ export default function MentorDashboard() {
               {requests.map((request) => (
                 <div
                   key={request._id}
-                  className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm"
+                  className="bg-white/10 border border-white/10 rounded-xl p-5 shadow"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-semibold">
+                    <div className="w-10 h-10 rounded-full bg-purple-500/20 text-purple-300 font-bold flex items-center justify-center">
                       {request.student?.username?.[0]?.toUpperCase()}
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-white">
                         {request.student?.username || "Student"}
                       </h3>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-400">
                         {request.student?.email}
                       </p>
                     </div>
                   </div>
-                  <div className="flex space-x-2 mt-2">
+                  <div className="flex gap-3 mt-4">
                     <button
                       onClick={() => showConfirmation(request._id, "accept")}
                       className="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
@@ -291,37 +291,37 @@ export default function MentorDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <p>No pending requests at this time.</p>
-            </div>
+            <p className="text-center text-gray-400">
+              No pending requests at this time.
+            </p>
           )}
         </div>
-      </div>
 
-      {/* Confirmation Dialog*/}
-      {confirmationVisible && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg p-6 w-96 shadow-lg text-center">
-            <p className="text-lg font-medium text-gray-800 mb-4">
-              Are you sure you want to {confirmationType} this request?
-            </p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={confirmAction}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-              >
-                Confirm
-              </button>
-              <button
-                onClick={closeConfirmation}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition"
-              >
-                Cancel
-              </button>
+        {/* Confirmation Dialog */}
+        {confirmationVisible && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-6">
+            <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl text-center">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                Are you sure you want to {confirmationType} this request?
+              </h2>
+              <div className="flex gap-4 mt-6">
+                <button
+                  onClick={confirmAction}
+                  className="flex-1 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={closeConfirmation}
+                  className="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

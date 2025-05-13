@@ -344,87 +344,78 @@ export default function AddFypIdea() {
     }
   };
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-gray-50 to-white p-6 md:p-10">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a23] to-[#1a1a3c] text-white p-6 md:p-10">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-3xl font-bold mb-2 text-center text-gray-800">
+        <h2 className="text-4xl font-bold mb-2 text-center text-white">
           Final Year Project Ideas
         </h2>
-        <p className="text-center text-gray-600 mb-8">
+        <p className="text-center text-gray-400 mb-10">
           Submit and manage your project proposals
         </p>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded flex items-center">
+          <div className="mb-6 p-4 bg-red-800/20 border-l-4 border-red-500 text-red-400 flex items-center">
             <AlertCircle className="mr-2 flex-shrink-0" size={20} />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded flex items-center">
+          <div className="mb-6 p-4 bg-green-800/20 border-l-4 border-green-500 text-green-300 flex items-center">
             <CheckCircle className="mr-2 flex-shrink-0" size={20} />
             <span>{success}</span>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Idea Submission Form */}
-          <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100">
-            <h3 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Submit Form */}
+          <div>
+            <h3 className="text-2xl font-semibold mb-6 text-white border-b border-[#2e2e4d] pb-2">
               Submit New Proposal
             </h3>
 
             <form onSubmit={handleSubmit}>
               <div className="mb-5">
-                <label className="block text-gray-700 font-medium mb-2">
+                <label className="block mb-2 text-white font-medium">
                   Project Title
                 </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className={`w-full px-4 py-3 border ${
-                    isDuplicate
-                      ? "border-amber-300 bg-amber-50"
-                      : "border-gray-300"
-                  } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
+                  className={`w-full px-4 py-3 bg-[#22223a] text-white border ${
+                    isDuplicate ? "border-yellow-400" : "border-[#2e2e4d]"
+                  } focus:ring-2 focus:ring-indigo-600 outline-none`}
                   placeholder="Enter a descriptive title"
                   required
                 />
               </div>
 
               <div className="mb-6">
-                <label className="block text-gray-700 font-medium mb-2">
+                <label className="block mb-2 text-white font-medium">
                   Description
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className={`w-full px-4 py-3 border ${
-                    isDuplicate
-                      ? "border-amber-300 bg-amber-50"
-                      : "border-gray-300"
-                  } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-40`}
-                  placeholder="Describe your project idea, goals, and expected outcomes"
+                  className={`w-full px-4 py-3 h-40 bg-[#22223a] text-white border ${
+                    isDuplicate ? "border-yellow-400" : "border-[#2e2e4d]"
+                  } focus:ring-2 focus:ring-indigo-600 outline-none`}
+                  placeholder="Describe your project idea"
                   required
                 />
               </div>
 
-              {/* Duplicate warning */}
               {isDuplicate && duplicateMatches.length > 0 && (
-                <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <h4 className="font-medium text-amber-800 flex items-center">
-                    <AlertCircle className="mr-1" size={16} />
-                    Duplicate Detection
+                <div className="mb-4 p-3 bg-yellow-900/20 text-yellow-300 border border-yellow-600">
+                  <h4 className="font-semibold flex items-center">
+                    <AlertCircle className="mr-2" size={16} />
+                    Duplicate Detected
                   </h4>
-                  <p className="text-amber-700 text-sm mt-1">
-                    Your idea is similar to existing proposals:
-                  </p>
-                  <ul className="mt-2 space-y-1">
+                  <ul className="mt-2 ml-4 list-disc">
                     {duplicateMatches.slice(0, 2).map((match) => (
-                      <li key={match._id} className="text-sm text-amber-800">
-                        "{match.title}" ({(match.similarity * 100).toFixed(0)}%
-                        similar)
+                      <li key={match._id}>
+                        "{match.title}" ({(match.similarity * 100).toFixed(0)}%)
                       </li>
                     ))}
                   </ul>
@@ -432,7 +423,7 @@ export default function AddFypIdea() {
               )}
 
               {checkingDuplicate && (
-                <div className="mb-4 flex items-center text-blue-600">
+                <div className="mb-4 flex items-center text-gray-300">
                   <Loader className="animate-spin mr-2" size={16} />
                   <span className="text-sm">
                     Checking for duplicate ideas...
@@ -443,7 +434,7 @@ export default function AddFypIdea() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex justify-center items-center"
+                className="w-full py-3 bg-gradient-to-r from-purple-700 to-indigo-600 hover:brightness-125 text-white font-semibold transition-all disabled:opacity-50 flex justify-center items-center rounded-xl"
               >
                 {isLoading ? (
                   <>
@@ -456,12 +447,11 @@ export default function AddFypIdea() {
               </button>
             </form>
 
-            {/* AI Recommendation Section */}
-            <div className="mt-6">
+            <div className="mt-8">
               <button
                 onClick={fetchAiRecommendations}
                 disabled={isAiLoading}
-                className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center"
+                className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-700 hover:brightness-125 text-white font-semibold transition-all flex justify-center items-center rounded-xl"
               >
                 {isAiLoading ? (
                   <Loader className="animate-spin mr-2" size={18} />
@@ -472,63 +462,52 @@ export default function AddFypIdea() {
               </button>
 
               {aiRecommendations.length > 0 && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h4 className="font-medium text-gray-800 mb-3 flex items-center">
-                    <Sparkles className="mr-2 text-purple-500" size={18} />
-                    AI Project Suggestions
-                  </h4>
-                  <ul className="space-y-2">
-                    {aiRecommendations.map((idea, index) => (
-                      <li
-                        key={index}
-                        className="p-3 bg-white rounded-md border border-gray-100 hover:bg-purple-50 transition-colors cursor-pointer"
-                        onClick={() => {
-                          const parts = idea.split(":");
-                          setTitle(parts[0].trim());
-                          setDescription(
-                            parts.length > 1 ? parts[1].trim() : ""
-                          );
-                        }}
-                      >
-                        <span className="text-gray-800">{idea}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="mt-6 space-y-3">
+                  {aiRecommendations.map((idea, i) => (
+                    <div
+                      key={i}
+                      className="p-3 bg-[#22223a] hover:bg-[#2e2e4d] cursor-pointer transition border border-[#2e2e4d]"
+                      onClick={() => {
+                        const parts = idea.split(":");
+                        setTitle(parts[0].trim());
+                        setDescription(parts[1]?.trim() || "");
+                      }}
+                    >
+                      <span className="text-white">{idea}</span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Existing Ideas List */}
-          <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-100">
-            <h3 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3">
+          {/* Existing Ideas */}
+          <div>
+            <h3 className="text-2xl font-semibold mb-6 text-white border-b border-[#2e2e4d] pb-2">
               Existing Proposals
             </h3>
 
             {existingIdeas.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-                <p className="text-center">No existing proposals found.</p>
-                <p className="text-center text-sm mt-2">
-                  Be the first to submit a project idea!
-                </p>
+              <div className="text-center text-gray-400 mt-20">
+                <p>No existing proposals found.</p>
+                <p className="text-sm mt-1">Be the first to submit one!</p>
               </div>
             ) : (
-              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+              <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-indigo-700 scrollbar-track-transparent">
                 {existingIdeas.map((idea) => (
                   <div
                     key={idea._id}
-                    className="p-5 border border-gray-100 rounded-lg hover:shadow-md transition-all bg-gray-50"
+                    className="bg-[#22223a] p-4 transition hover:bg-[#2e2e4d] border border-[#2e2e4d] rounded-xl"
                   >
                     <div className="flex justify-between items-start">
-                      <h4 className="font-medium text-lg text-gray-800">
+                      <h4 className="text-lg font-medium text-white">
                         {idea.title}
                       </h4>
-
                       <div className="flex gap-2">
                         <button
                           onClick={() => fetchRecommendations(idea._id)}
                           disabled={recommendLoading === idea._id}
-                          className="flex items-center justify-center bg-purple-50 text-purple-600 p-2 rounded-full hover:bg-purple-100 transition-colors"
+                          className="text-indigo-300 hover:text-indigo-400 transition"
                           title="Get similar ideas"
                         >
                           {recommendLoading === idea._id ? (
@@ -541,7 +520,7 @@ export default function AddFypIdea() {
                         <button
                           onClick={() => handleDelete(idea._id)}
                           disabled={deleteLoading === idea._id}
-                          className="flex items-center justify-center bg-red-50 text-red-600 p-2 rounded-full hover:bg-red-100 transition-colors"
+                          className="text-red-400 hover:text-red-500 transition"
                           title="Delete idea"
                         >
                           {deleteLoading === idea._id ? (
@@ -552,44 +531,29 @@ export default function AddFypIdea() {
                         </button>
                       </div>
                     </div>
-
-                    <p className="text-gray-600 mt-2">{idea.description}</p>
-
-                    <div className="mt-3 flex items-center text-xs text-gray-500">
-                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                    <p className="text-gray-300 mt-2">{idea.description}</p>
+                    <div className="mt-3 text-xs text-gray-500">
+                      <span className="mr-2">
                         {idea.submittedBy?.username || "Unknown"}
                       </span>
-                      <span className="ml-2">
-                        {new Date(idea.createdAt).toLocaleDateString()}
-                      </span>
+                      | {new Date(idea.createdAt).toLocaleDateString()}
                     </div>
-
-                    <div className="mt-1 text-xs text-gray-400">
-                      Idea ID: {idea._id} | Owner ID:{" "}
-                      {idea.submittedBy?._id || "none"}
-                    </div>
-
                     {recommendations.length > 0 && lastQueried === idea._id && (
-                      <div className="mt-4 pt-3 border-t border-gray-200">
-                        <h5 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                      <div className="mt-4 border-t border-[#2e2e4d] pt-3">
+                        <h5 className="text-sm text-indigo-400 mb-2 flex items-center">
                           <Sparkles className="mr-1" size={14} />
                           Similar Ideas
                         </h5>
-                        <div className="space-y-2">
+                        <div className="space-y-2 text-gray-300">
                           {recommendations.slice(0, 3).map((rec) => (
                             <div
                               key={rec._id}
-                              className="pl-3 border-l-2 border-purple-200"
+                              className="pl-2 border-l-2 border-indigo-600"
                             >
-                              <p className="text-sm font-medium text-gray-800">
-                                {rec.title}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {rec.description && (
-                                  <span className="block mb-1">
-                                    {rec.description.substring(0, 60)}...
-                                  </span>
-                                )}
+                              <p className="font-medium">{rec.title}</p>
+                              <p className="text-xs text-gray-400">
+                                {rec.description?.substring(0, 60)}...
+                                <br />
                                 Similarity: {(rec.similarity * 100).toFixed(1)}%
                               </p>
                             </div>
