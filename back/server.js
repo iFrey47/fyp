@@ -66,6 +66,35 @@ io.on("connection", (socket) => {
     // }
   });
 
+  // Video call signaling
+  socket.on("call_user", (data) => {
+    const { to, offer, from } = data;
+    if (activeUsers[to]) {
+      io.to(activeUsers[to]).emit("call_incoming", { from, offer });
+    }
+  });
+
+  socket.on("call_accepted", (data) => {
+    const { to, answer } = data;
+    if (activeUsers[to]) {
+      io.to(activeUsers[to]).emit("call_accepted", { answer });
+    }
+  });
+
+  socket.on("call_ice_candidate", (data) => {
+    const { to, candidate } = data;
+    if (activeUsers[to]) {
+      io.to(activeUsers[to]).emit("call_ice_candidate", { candidate });
+    }
+  });
+
+  socket.on("call_end", (data) => {
+    const { to } = data;
+    if (activeUsers[to]) {
+      io.to(activeUsers[to]).emit("call_ended");
+    }
+  });
+
   socket.on("disconnect", () => {
     Object.entries(activeUsers).forEach(([username, id]) => {
       if (id === socket.id) {

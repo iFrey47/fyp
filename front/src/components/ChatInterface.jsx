@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
+import VideoCall from "./VideoCall";
 
 const ChatInterface = ({ currentUser, recipientUser }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const socket = useRef();
   const messagesEndRef = useRef(null);
+  const [isInCall, setIsInCall] = useState(false);
+  const [incomingCall, setIncomingCall] = useState(false);
+  const [incomingCallData, setIncomingCallData] = useState(null);
 
-  // Create a unique chat ID for localStorage (sorted to ensure consistency)
   const chatId = [currentUser, recipientUser].sort().join("-");
 
-  // Load saved messages when component mounts
   useEffect(() => {
     const savedMessages = localStorage.getItem(`chat-messages-${chatId}`);
     if (savedMessages) {
@@ -26,36 +28,26 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
     }
   }, [chatId]);
 
-  // Save messages to localStorage
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem(`chat-messages-${chatId}`, JSON.stringify(messages));
     }
   }, [messages, chatId]);
 
-  // Socket connection and message handling
   useEffect(() => {
     console.log("[Chat Setup] Current user:", currentUser);
     console.log("[Chat Setup] Recipient user:", recipientUser);
-    // Initialize socket connection
+
     socket.current = io("http://localhost:5000", {
       withCredentials: true,
       transports: ["websocket"],
       reconnectionAttempts: 3,
     });
 
-    console.log("Registering with username:", currentUser);
-    // Register user with socket server
     socket.current.emit("register", currentUser);
-    console.log("Socket registering with:", currentUser); // Should be "iamstudent"
+    console.log("Socket registered with username:", currentUser);
 
-    console.log("Socket registered with username:", currentUser); // Verify real username
-
-    console.log(`User registered: ${currentUser}`);
-
-    // Message reception handler
     const handleMessage = (data) => {
-      // Only add if message is for current chat
       if (data.from === recipientUser || data.from === currentUser) {
         setMessages((prev) => [
           ...prev,
@@ -69,28 +61,35 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
       }
     };
 
-    // Set up event listeners
-    socket.current.on("receive_message", handleMessage);
-    socket.current.on("connect_error", (err) =>
-      console.error("Connection error:", err)
-    );
+    const handleIncomingCall = (data) => {
+      console.log("Incoming call received:", data);
+      if (data.from === recipientUser) {
+        setIncomingCall(true);
+        setIncomingCallData(data);
+      }
+    };
 
-    // Cleanup function
+    socket.current.on("receive_message", handleMessage);
+    socket.current.on("call_incoming", handleIncomingCall);
+    socket.current.on("connect_error", (err) => {
+      console.error("Connection error:", err);
+    });
+
     return () => {
       socket.current.off("receive_message", handleMessage);
+      socket.current.off("call_incoming", handleIncomingCall);
       socket.current.disconnect();
     };
-  }, [currentUser, recipientUser]); // Add recipientUser to dependencies
+  }, [currentUser, recipientUser]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const sendMessage = (e) => {
     e.preventDefault();
     if (!message.trim()) return;
 
-    // Debug: Verify usernames before sending
-    console.log("[Message Send] Current user:", currentUser);
-    console.log("[Message Send] Recipient user:", recipientUser);
-
-    // Create message object
     const newMessage = {
       from: currentUser,
       message: message.trim(),
@@ -98,20 +97,34 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
       timestamp: new Date().toISOString(),
     };
 
-    // Update UI immediately
     setMessages((prev) => [...prev, newMessage]);
     setMessage("");
 
-    // Send via socket
     socket.current.emit("send_message", {
       from: currentUser,
-      to: recipientUser, // This must match the exact recipient username
+      to: recipientUser,
       message: message.trim(),
     });
   };
 
+  const handleEndCall = () => {
+    setIsInCall(false);
+    setIncomingCall(false);
+    setIncomingCallData(null);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#2e2d3e] text-white overflow-hidden">
+      {/* Video Call Component Overlay */}
+      {isInCall && (
+        <VideoCall
+          currentUser={currentUser}
+          recipientUser={recipientUser}
+          onEndCall={handleEndCall}
+          incomingOffer={incomingCallData?.offer}
+        />
+      )}
+
       {/* Header */}
       <div className="bg-[#1e1e2f] border-b border-gray-700 p-4 shadow-sm flex-shrink-0">
         <div className="flex items-center">
@@ -124,7 +137,39 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
         </div>
       </div>
 
-      {/* Messages */}
+      {/* Incoming Call Prompt */}
+      {incomingCall && !isInCall && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-[#1e1e2f] p-6 rounded-lg text-white text-center">
+            <p className="mb-4 text-lg">{recipientUser} is calling you...</p>
+            <div className="flex justify-center space-x-4">
+              <button
+                className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded"
+                onClick={() => {
+                  setIsInCall(true);
+                  setIncomingCall(false);
+                }}
+              >
+                Accept
+              </button>
+              <button
+                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded"
+                onClick={() => {
+                  setIncomingCall(false);
+                  setIncomingCallData(null);
+
+                  // Notify the caller that the call was declined
+                  socket.current.emit("call_end", { to: recipientUser });
+                }}
+              >
+                Decline
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Messages Display */}
       <div
         className="flex-1 p-4 overflow-y-auto"
         style={{ overscrollBehavior: "contain" }}
@@ -155,7 +200,7 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
                       msg.isMine ? "text-purple-300" : "text-gray-400"
                     }`}
                   >
-                    {new Date().toLocaleTimeString([], {
+                    {new Date(msg.timestamp).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
@@ -168,8 +213,16 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
         </div>
       </div>
 
-      {/* Message Input */}
+      {/* Input + Call Button */}
       <div className="bg-[#1e1e2f] border-t border-gray-700 p-4 flex-shrink-0">
+        <div className="flex justify-between mb-2">
+          <button
+            onClick={() => setIsInCall(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+          >
+            Start Video Call
+          </button>
+        </div>
         <form onSubmit={sendMessage} className="flex">
           <input
             type="text"
@@ -190,4 +243,5 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
     </div>
   );
 };
+
 export default ChatInterface;
