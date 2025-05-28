@@ -13,7 +13,7 @@ const ChatApp = ({ currentUser, userType, initialSelectedContact }) => {
     if (initialSelectedContact) {
       const newContact = {
         id: `contact-${Date.now()}`,
-        name: initialSelectedContact, // Make sure this is the actual username
+        name: initialSelectedContact,
         lastMessage: "Start chatting",
         unread: 0,
         isOnline: true,

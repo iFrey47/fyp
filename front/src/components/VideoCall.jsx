@@ -305,7 +305,7 @@ const VideoCall = ({
         )}
       </div>
 
-      {/* Call Controls */}
+      {/* call controls */}
       <div className="bg-gray-800 p-4 flex justify-center space-x-8">
         {callStatus === "idle" && (
           <button
