@@ -20,7 +20,13 @@ export const signUp = async (req, res) => {
     const hashedPassword = await hash(password, 10);
 
     // Validate and assign role
-    const allowedRoles = ["student", "supervisor", "mentor", "admin"];
+    const allowedRoles = [
+      "student",
+      "supervisor",
+      "mentor",
+      "admin",
+      "coordinator",
+    ];
     const assignedRole = allowedRoles.includes(role) ? role : "student";
 
     // Create user

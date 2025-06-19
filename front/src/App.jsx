@@ -13,6 +13,7 @@ import DashboardButton from "./components/DashoardButton";
 import ChatPage from "./pages/ChatPage";
 import AddFypIdea from "./pages/AddFypIdea";
 import { Navigate } from "react-router-dom";
+import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 
 function App() {
   return (
@@ -31,7 +32,13 @@ function App() {
         <Route
           element={
             <ProtectedRoute
-              allowedRoles={["student", "supervisor", "mentor", "admin"]}
+              allowedRoles={[
+                "student",
+                "supervisor",
+                "mentor",
+                "admin",
+                "coordinator",
+              ]}
             />
           }
         >
@@ -61,6 +68,13 @@ function App() {
 
         <Route element={<ProtectedRoute allowedRoles={["mentor"]} />}>
           <Route path="/mentor-dashboard" element={<MentorDashboard />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={["coordinator"]} />}>
+          <Route
+            path="/coordinator-dashboard"
+            element={<CoordinatorDashboard />}
+          />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

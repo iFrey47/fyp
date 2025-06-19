@@ -238,7 +238,7 @@ const ChatInterface = ({ currentUser, recipientUser }) => {
           <input
             type="text"
             value={message}
-            onChange={(e) => setMessage(e.value)}
+            onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message..."
             className="flex-1 bg-[#3c3e5c] text-white border-none px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400"
             autoFocus

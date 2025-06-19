@@ -50,6 +50,7 @@ export default function DashboardButton() {
     supervisor: "/supervisor-dashboard",
     mentor: "/mentor-dashboard",
     admin: "/admin-dashboard",
+    coordinator: "/coordinator-dashboard",
   };
 
   const dashboardPath = dashboardRoutes[role] || "/unauthorized";

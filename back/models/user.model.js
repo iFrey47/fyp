@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["student", "supervisor", "mentor", "admin"], // Define allowed roles
+      enum: ["student", "supervisor", "mentor", "admin", "coordinator"], // Define allowed roles
       default: "student", // Default role
     },
     isAvailable: {

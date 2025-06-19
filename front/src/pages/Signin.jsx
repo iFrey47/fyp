@@ -65,6 +65,9 @@ export default function SignIn() {
         case "mentor":
           navigate("/mentor-dashboard");
           break;
+        case "coordinator":
+          navigate("/coordinator-dashboard");
+          break;
         case "admin":
           navigate("/admin-dashboard");
           break;

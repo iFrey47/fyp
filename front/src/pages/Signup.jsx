@@ -221,7 +221,8 @@ export default function SignUp() {
                   <option value="student">Student</option>
                   <option value="supervisor">Supervisor</option>
                   <option value="mentor">Mentor</option>
-                  <option value="admin">Admin</option>
+                  {/* <option value="admin">Admin</option> */}
+                  <option value="coordinator">Coordinator</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <svg
