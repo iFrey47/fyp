@@ -25,8 +25,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    supervisorId: {
+      type: mongoose.Schema.Types.ObjectId, // Stores the supervisor's _id
+      ref: "User", // References the User model
+      default: null, // Initially unassigned
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-
 export default mongoose.model("User", userSchema);

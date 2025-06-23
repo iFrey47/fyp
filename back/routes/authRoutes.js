@@ -26,6 +26,13 @@ import {
   deleteIdea,
   recommendIdeas,
 } from "../controllers/projectIdeaController.js";
+import {
+  assignSupervisor,
+  getAllStudentsForCoordinator,
+  getAllSupervisors,
+  getStudentsBySupervisor,
+  getUnassignedStudents,
+} from "../controllers/fetcherController.js";
 
 const router = Router();
 
@@ -56,7 +63,7 @@ router.delete(
   "/delete-projects/:id",
   authMiddleware,
   validateObjectId,
-  deleteIdea
+  deleteIdea,
 );
 
 // NEW AI-Powered Recommendation Route
@@ -64,7 +71,16 @@ router.get(
   "/projects/recommend/:ideaId",
   authMiddleware,
   validateObjectId,
-  recommendIdeas
+  recommendIdeas,
 );
+
+// fetchingController's routes
+
+router.get("/students-unassigned", authMiddleware, getUnassignedStudents);
+router.get("/supervisors", authMiddleware, getAllSupervisors);
+router.post("/assign-supervisor", authMiddleware, assignSupervisor);
+router.get("/students/all", authMiddleware, getAllStudentsForCoordinator);
+
+router.get("/students/assigned-to-me", authMiddleware, getStudentsBySupervisor);
 
 export default router;

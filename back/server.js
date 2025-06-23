@@ -3,6 +3,7 @@ import cors from "cors";
 import { config } from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import documentRoutes from "./routes/documentRoutes.js";
 import { Server } from "socket.io";
 
 const app = express();
@@ -14,7 +15,7 @@ app.use(
     methods: "GET,HEAD,POST,PUT,PATCH,DELETE",
     allowedHeaders: "Content-Type,Authorization",
     credentials: true,
-  })
+  }),
 );
 
 // Initialize environment variables
@@ -27,6 +28,8 @@ connectDB();
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true })); // For form data
+
+app.use("/api/documents", documentRoutes);
 
 // Authentication routes
 app.use("/api/auth", authRoutes);
