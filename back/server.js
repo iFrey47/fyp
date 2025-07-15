@@ -5,7 +5,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import documentRoutes from "./routes/documentRoutes.js";
 import { Server } from "socket.io";
-
+import meetingRoutes from "./routes/meetingRoute.js";
 const app = express();
 
 // Set up CORS
@@ -33,6 +33,8 @@ app.use("/api/documents", documentRoutes);
 
 // Authentication routes
 app.use("/api/auth", authRoutes);
+
+app.use("/api/meetings", meetingRoutes);
 
 // Initialize HTTP server
 const server = app.listen(process.env.PORT || 5000, () => {
