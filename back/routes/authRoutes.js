@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 import { validateObjectId } from "../middlewares/authMiddleware.js";
+import User from "../models/user.model.js";
 
 import {
   deleteAccount,
@@ -31,6 +32,7 @@ import {
   getAllStudentsForCoordinator,
   getAllSupervisors,
   getStudentsBySupervisor,
+  getSupervisor,
   getUnassignedStudents,
 } from "../controllers/fetcherController.js";
 
@@ -78,9 +80,14 @@ router.get(
 
 router.get("/students-unassigned", authMiddleware, getUnassignedStudents);
 router.get("/supervisors", authMiddleware, getAllSupervisors);
+router.get("/supervisor", authMiddleware, getSupervisor);
+
 router.post("/assign-supervisor", authMiddleware, assignSupervisor);
+
 router.get("/students/all", authMiddleware, getAllStudentsForCoordinator);
 
-router.get("/students/assigned-to-me", authMiddleware, getStudentsBySupervisor);
+// router.get("/students/assigned-to-me", authMiddleware, getStudentsBySupervisor);
+
+router.get("/supervisor/students", authMiddleware, getStudentsBySupervisor);
 
 export default router;

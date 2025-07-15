@@ -105,20 +105,93 @@ export const getAllStudentsForCoordinator = async (req, res) => {
   }
 };
 
+// export const getStudentsBySupervisor = async (req, res) => {
+//   try {
+//     const supervisorId = req.user.id;
+//     const students = await User.find({
+//       role: "student",
+//       supervisorId: supervisorId,
+//     }).select("-password");
+
+//     res.status(200).json({
+//       success: true,
+//       students,
+//     });
+//   } catch (error) {
+//     console.error("Get Students Error:", error);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
 export const getStudentsBySupervisor = async (req, res) => {
   try {
+    // Get the supervisor's user ID from the authenticated user
     const supervisorId = req.user.id;
-    const students = await User.find({
-      role: "student",
-      supervisorId: supervisorId,
-    }).select("-password");
 
-    res.status(200).json({
-      success: true,
-      students,
+    // Find all students where supervisorId matches
+    const students = await User.find({
+      supervisorId: supervisorId,
+      role: "student",
+    }).select("username email");
+
+    if (!students || students.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No students assigned to this supervisor",
+      });
+    }
+
+    res.json({ success: true, students });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Server error while fetching assigned students",
     });
-  } catch (error) {
-    console.error("Get Students Error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Add this to fetcherController.js
+export const getSupervisor = async (req, res) => {
+  try {
+    // First get the current user (student)
+    const student = await User.findById(req.user.id);
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found",
+      });
+    }
+
+    // If no supervisor assigned
+    if (!student.supervisorId) {
+      return res.json({
+        success: true,
+        supervisor: null,
+      });
+    }
+
+    // Find the supervisor
+    const supervisor = await User.findById(student.supervisorId).select(
+      "username email role",
+    );
+
+    if (!supervisor) {
+      return res.json({
+        success: true,
+        supervisor: null,
+      });
+    }
+
+    res.json({
+      success: true,
+      supervisor,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };

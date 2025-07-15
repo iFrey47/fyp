@@ -7,6 +7,7 @@ import {
   X,
   Plus,
   FolderOpen,
+  MessageSquare,
 } from "lucide-react";
 
 export default function StudentDashboard() {
@@ -28,6 +29,8 @@ export default function StudentDashboard() {
   const [uploading, setUploading] = useState(false);
   const [hasAssignedSupervisor, setHasAssignedSupervisor] = useState(false);
 
+  const [supervisor, setSupervisor] = useState(null);
+
   useEffect(() => {
     if (role !== "student") {
       navigate("/unauthorized");
@@ -35,6 +38,7 @@ export default function StudentDashboard() {
       fetchMentors();
       fetchRequests();
       fetchDocuments();
+      fetchSupervisor(); // Add this
     }
   }, [role, navigate, token]);
 
@@ -49,6 +53,43 @@ export default function StudentDashboard() {
       console.error("Fetch error:", err);
     }
   };
+
+  const fetchSupervisor = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/supervisor", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // First check if the response is ok
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // Check if the request was successful and we have data
+      if (data.success) {
+        setSupervisor(data.supervisor);
+      } else {
+        setSupervisor(null);
+      }
+    } catch (err) {
+      console.error("Error fetching supervisor:", err);
+      setSupervisor(null);
+    }
+  };
+  useEffect(() => {
+    if (role !== "student") {
+      navigate("/unauthorized");
+    } else {
+      fetchMentors();
+      fetchRequests();
+      fetchDocuments();
+      fetchSupervisor();
+    }
+  }, [role, navigate, token]);
 
   const fetchRequests = async () => {
     try {
@@ -294,7 +335,6 @@ export default function StudentDashboard() {
               </button>
             </div>
 
-            {/* Modal Content */}
             <div className="p-6">
               {!hasAssignedSupervisor ? (
                 /* No Supervisor Assigned Message */
@@ -333,6 +373,48 @@ export default function StudentDashboard() {
               ) : (
                 /* Normal Document Management Interface */
                 <>
+                  {/* Supervisor Info Section */}
+                  <div className="mb-8 p-6 bg-[#22223a] rounded-xl border border-[#2e2e4d]">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-lg font-semibold text-purple-400">
+                        Your Supervisor
+                      </h4>
+                      {supervisor ? (
+                        <button
+                          onClick={() =>
+                            navigate("/chat", {
+                              state: { recipientUser: supervisor.username },
+                            })
+                          }
+                          className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg flex items-center gap-2 hover:brightness-110 transition-all"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          Start Chat
+                        </button>
+                      ) : null}
+                    </div>
+
+                    {supervisor ? (
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-700 to-indigo-700 flex items-center justify-center text-xl font-bold">
+                          {supervisor.username[0]?.toUpperCase()}
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-white">
+                            {supervisor.username}
+                          </h3>
+                          <p className="text-sm text-gray-400">
+                            {supervisor.email}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-4 text-yellow-400">
+                        <p>Supervisor information not available</p>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Upload Section */}
                   <div className="mb-8 p-6 bg-[#22223a] rounded-xl border border-[#2e2e4d]">
                     <h4 className="text-lg font-semibold mb-4 text-blue-400">

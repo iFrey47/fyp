@@ -63,10 +63,6 @@ io.on("connection", (socket) => {
     if (activeUsers[to]) {
       io.to(activeUsers[to]).emit("receive_message", { from, message });
     }
-    //  else {
-    //   console.log(`${to} is currently offline`);
-    //   // Optional: Store offline messages in DB here
-    // }
   });
 
   // Video call signaling
@@ -106,4 +102,14 @@ io.on("connection", (socket) => {
       }
     });
   });
+});
+
+app._router.stack.forEach((middleware) => {
+  if (middleware.route) {
+    console.log(middleware.route.path);
+  } else if (middleware.name === "router") {
+    middleware.handle.stack.forEach((handler) => {
+      console.log(handler.route?.path);
+    });
+  }
 });
