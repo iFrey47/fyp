@@ -3,6 +3,8 @@ import {
   scheduleMeeting,
   getAllMeetings,
   cancelMeeting,
+  getStudentMeetings,
+  getSupervisorMeetings,
 } from "../controllers/meetingController.js";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
@@ -16,5 +18,8 @@ router.get("/", authMiddleware, getAllMeetings);
 
 // Cancel a meeting
 router.delete("/:id", authMiddleware, cancelMeeting);
+
+router.get("/supervisor", authMiddleware, getSupervisorMeetings);
+router.get("/student", authMiddleware, getStudentMeetings);
 
 export default router;

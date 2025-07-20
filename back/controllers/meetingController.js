@@ -106,3 +106,35 @@ const notifyParticipants = async (meeting) => {
     console.error("Error notifying participants:", err);
   }
 };
+
+// Get meetings for supervisor
+export const getSupervisorMeetings = async (req, res) => {
+  try {
+    const meetings = await Meeting.find({
+      panelMembers: req.user.id,
+      status: "scheduled",
+    })
+      .populate("students", "username email")
+      .populate("panelMembers", "username email");
+
+    res.json({ success: true, meetings });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get meetings for student
+export const getStudentMeetings = async (req, res) => {
+  try {
+    const meetings = await Meeting.find({
+      students: req.user.id,
+      status: "scheduled",
+    })
+      .populate("students", "username email")
+      .populate("panelMembers", "username email");
+
+    res.json({ success: true, meetings });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

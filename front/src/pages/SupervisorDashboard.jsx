@@ -12,6 +12,15 @@ import {
   BookOpen,
   Bell,
   AlertCircle,
+  Clock,
+  X,
+  ChevronRight,
+  Search,
+  Filter,
+  Mail,
+  Award,
+  Plus,
+  UserCheck,
 } from "lucide-react";
 
 // Toast notification component
@@ -351,6 +360,30 @@ export default function SupervisorDashboard() {
   const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
+  // Meeting scheduling state
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const [meetingDate, setMeetingDate] = useState("");
+  const [meetingTime, setMeetingTime] = useState("");
+  const [meetingTitle, setMeetingTitle] = useState("");
+  const [meetingDescription, setMeetingDescription] = useState("");
+  const [scheduledMeetings, setScheduledMeetings] = useState([]);
+
+  // Slot calendar state
+  const [slots, setSlots] = useState([
+    { day: "Monday", time: "00:00-00:00", available: true },
+    { day: "Tuesday", time: "00:00-00:00", available: true },
+    { day: "Wednesday", time: "00:00-00:00", available: true },
+    { day: "Thursday", time: "00:00-00:00", available: false },
+    { day: "Friday", time: "00:00-00:00", available: true },
+  ]);
+
+  // New slot form state
+  const [newSlot, setNewSlot] = useState({
+    day: "Monday",
+    startTime: "09:00",
+    endTime: "11:00",
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -380,6 +413,19 @@ export default function SupervisorDashboard() {
 
         const docsData = await docsRes.json();
         if (docsData.success) setDocuments(docsData.documents);
+
+        // Fetch meetings
+        const meetingsRes = await fetch(
+          "http://localhost:5000/api/meetings/supervisor",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        );
+
+        const meetingsData = await meetingsRes.json();
+        if (meetingsData.success) setScheduledMeetings(meetingsData.meetings);
       } catch (error) {
         setToast({ message: "Failed to load data", type: "error" });
       } finally {
@@ -399,6 +445,111 @@ export default function SupervisorDashboard() {
   const openDocumentReview = (student) => {
     setSelectedStudent(student);
     setShowDocumentModal(true);
+  };
+
+  const handleScheduleMeeting = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const meetingData = {
+        students: selectedStudents,
+        date: meetingDate,
+        time: meetingTime,
+        title: meetingTitle,
+        description: meetingDescription,
+      };
+
+      const res = await fetch("http://localhost:5000/api/meetings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(meetingData),
+      });
+
+      const data = await res.json();
+      if (!res.ok)
+        throw new Error(data.message || "Failed to schedule meeting");
+
+      setScheduledMeetings([...scheduledMeetings, data.meeting]);
+
+      setSelectedStudents([]);
+      setMeetingDate("");
+      setMeetingTime("");
+      setMeetingTitle("");
+      setMeetingDescription("");
+
+      setToast({ text: "Meeting scheduled successfully!", type: "success" });
+    } catch (err) {
+      setToast({ text: err.message, type: "error" });
+    }
+  };
+
+  const handleCancelMeeting = async (meetingId) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/meetings/${meetingId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!res.ok) throw new Error("Failed to cancel meeting");
+
+      setScheduledMeetings(
+        scheduledMeetings.filter((m) => m._id !== meetingId),
+      );
+
+      setToast({ text: "Meeting cancelled successfully", type: "success" });
+    } catch (err) {
+      setToast({ text: err.message, type: "error" });
+    }
+  };
+
+  const toggleSlotAvailability = (index) => {
+    const updatedSlots = [...slots];
+    updatedSlots[index].available = !updatedSlots[index].available;
+    setSlots(updatedSlots);
+  };
+
+  const handleAddSlot = () => {
+    const { day, startTime, endTime } = newSlot;
+
+    if (!day || !startTime || !endTime) {
+      setToast({ message: "Please fill all slot fields", type: "error" });
+      return;
+    }
+
+    const timeRange = `${startTime}-${endTime}`;
+    const newSlotEntry = {
+      day,
+      time: timeRange,
+      available: true,
+    };
+
+    setSlots([...slots, newSlotEntry]);
+    setToast({ message: "New slot added successfully!", type: "success" });
+
+    // Reset form
+    setNewSlot({
+      day: "Monday",
+      startTime: "09:00",
+      endTime: "11:00",
+    });
+  };
+
+  const handleNewSlotChange = (e) => {
+    const { name, value } = e.target;
+    setNewSlot((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   return (
@@ -438,6 +589,26 @@ export default function SupervisorDashboard() {
             }`}
           >
             Documents Review
+          </button>
+          <button
+            onClick={() => setActiveTab("meetings")}
+            className={`px-4 py-2 font-medium ${
+              activeTab === "meetings"
+                ? "text-blue-400 border-b-2 border-blue-400"
+                : "text-gray-400"
+            }`}
+          >
+            Meetings
+          </button>
+          <button
+            onClick={() => setActiveTab("availability")}
+            className={`px-4 py-2 font-medium ${
+              activeTab === "availability"
+                ? "text-blue-400 border-b-2 border-blue-400"
+                : "text-gray-400"
+            }`}
+          >
+            My Availability
           </button>
         </div>
 
@@ -488,7 +659,7 @@ export default function SupervisorDashboard() {
               </div>
             )}
           </div>
-        ) : (
+        ) : activeTab === "documents" ? (
           <div className="space-y-4">
             {documents.length > 0 ? (
               documents.map((doc) => (
@@ -539,7 +710,294 @@ export default function SupervisorDashboard() {
               </div>
             )}
           </div>
-        )}
+        ) : activeTab === "meetings" ? (
+          <div className="space-y-8">
+            {/* Meeting Scheduling Panel */}
+            <div className="bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700/50 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  Schedule Meeting
+                </h2>
+              </div>
+
+              <div className="p-6 space-y-6">
+                <div>
+                  <label className="block text-blue-200 text-sm font-medium mb-3">
+                    Select Students
+                  </label>
+                  <select
+                    multiple
+                    className="w-full p-4 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white h-[120px] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    onChange={(e) => {
+                      const selected = Array.from(e.target.selectedOptions).map(
+                        (option) => option.value,
+                      );
+                      setSelectedStudents(selected);
+                    }}
+                  >
+                    {students.map((student) => (
+                      <option key={student._id} value={student._id}>
+                        {student.username} ({student.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-blue-200 text-sm font-medium mb-3">
+                      Meeting Date
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full p-4 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                      value={meetingDate}
+                      onChange={(e) => setMeetingDate(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-blue-200 text-sm font-medium mb-3">
+                      Meeting Time
+                    </label>
+                    <input
+                      type="time"
+                      className="w-full p-4 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                      value={meetingTime}
+                      onChange={(e) => setMeetingTime(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-blue-200 text-sm font-medium mb-3">
+                    Meeting Title
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-4 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    placeholder="Project Discussion"
+                    value={meetingTitle}
+                    onChange={(e) => setMeetingTitle(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-blue-200 text-sm font-medium mb-3">
+                    Description
+                  </label>
+                  <textarea
+                    className="w-full p-4 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    rows="3"
+                    placeholder="Meeting agenda and details..."
+                    value={meetingDescription}
+                    onChange={(e) => setMeetingDescription(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  onClick={handleScheduleMeeting}
+                  disabled={
+                    !selectedStudents.length || !meetingDate || !meetingTime
+                  }
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white py-4 px-6 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                >
+                  <Calendar className="w-4 h-4" />
+                  Schedule Meeting
+                </button>
+              </div>
+            </div>
+
+            {/* Scheduled Meetings */}
+            <div className="bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700/50 overflow-hidden">
+              <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4">
+                <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  Upcoming Meetings
+                </h2>
+              </div>
+
+              <div className="p-6">
+                {scheduledMeetings.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="bg-gray-700/50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                      <Calendar className="w-10 h-10 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-300 mb-2">
+                      No meetings scheduled yet
+                    </h3>
+                    <p className="text-gray-500">
+                      Schedule your first meeting above
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {scheduledMeetings.map((meeting) => (
+                      <div
+                        key={meeting._id}
+                        className="bg-gray-700/30 p-6 rounded-xl border border-gray-600/50 hover:border-indigo-500/50 transition-all"
+                      >
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="font-semibold text-white text-lg flex items-center gap-2">
+                              <BookOpen className="w-5 h-5 text-indigo-400" />
+                              {meeting.title}
+                            </h3>
+                            <p className="text-gray-300 mt-1">
+                              {meeting.description}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => handleCancelMeeting(meeting._id)}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-900/20 p-2 rounded-lg transition-colors"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-6 text-sm mb-4">
+                          <span className="flex items-center gap-2 text-indigo-300 bg-indigo-900/20 px-3 py-1 rounded-lg">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(meeting.date).toLocaleDateString()}
+                          </span>
+                          <span className="flex items-center gap-2 text-indigo-300 bg-indigo-900/20 px-3 py-1 rounded-lg">
+                            <Clock className="w-4 h-4" />
+                            {meeting.time}
+                          </span>
+                        </div>
+
+                        <div>
+                          <h4 className="text-xs font-medium text-gray-400 mb-2 uppercase tracking-wide">
+                            Students
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {meeting.students.map((studentId) => {
+                              const student = students.find(
+                                (s) => s._id === studentId,
+                              );
+                              return student ? (
+                                <span
+                                  key={studentId}
+                                  className="flex items-center gap-1 text-xs bg-gray-600/50 px-3 py-1 rounded-lg text-gray-200"
+                                >
+                                  <User className="w-3 h-3" />
+                                  {student.username}
+                                </span>
+                              ) : null;
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : activeTab === "availability" ? (
+          <div className="bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700/50 overflow-hidden">
+            <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
+              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                My Availability
+              </h2>
+            </div>
+
+            <div className="p-6">
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-white mb-4">
+                  Weekly Availability Slots
+                </h3>
+                <p className="text-gray-400 mb-4">
+                  Set your weekly availability for student meetings. Click on a
+                  slot to toggle availability.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {slots.map((slot, index) => (
+                  <div
+                    key={`${slot.day}-${slot.time}`}
+                    onClick={() => toggleSlotAvailability(index)}
+                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                      slot.available
+                        ? "bg-green-900/30 border-green-800 hover:border-green-600"
+                        : "bg-red-900/30 border-red-800 hover:border-red-600"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium text-white">{slot.day}</h4>
+                        <p className="text-sm text-gray-300">{slot.time}</p>
+                      </div>
+                      <div
+                        className={`w-4 h-4 rounded-full ${
+                          slot.available ? "bg-green-400" : "bg-red-400"
+                        }`}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8">
+                <h3 className="text-lg font-medium text-white mb-4">
+                  Add New Slot
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Day
+                    </label>
+                    <select
+                      name="day"
+                      value={newSlot.day}
+                      onChange={handleNewSlotChange}
+                      className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    >
+                      <option>Monday</option>
+                      <option>Tuesday</option>
+                      <option>Wednesday</option>
+                      <option>Thursday</option>
+                      <option>Friday</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Start Time
+                    </label>
+                    <input
+                      type="time"
+                      name="startTime"
+                      value={newSlot.startTime}
+                      onChange={handleNewSlotChange}
+                      className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      End Time
+                    </label>
+                    <input
+                      type="time"
+                      name="endTime"
+                      value={newSlot.endTime}
+                      onChange={handleNewSlotChange}
+                      className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={handleAddSlot}
+                  className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Slot
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {/* Document Review Modal */}
