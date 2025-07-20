@@ -242,6 +242,42 @@ export default function SignUp() {
               </div>
             </div>
 
+            {/* Mentor Description Field (only shown when role is mentor) */}
+            {formData.role === "mentor" && (
+              <div>
+                <label
+                  htmlFor="mentorDescription"
+                  className="block text-sm font-medium text-gray-300 mb-1"
+                >
+                  Mentor Description
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 pt-3 flex items-start pointer-events-none">
+                    <svg
+                      className="h-5 w-5 text-gray-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                      />
+                    </svg>
+                  </div>
+                  <textarea
+                    id="mentorDescription"
+                    onChange={handleChange}
+                    placeholder="Tell us about your expertise and background..."
+                    rows="3"
+                    className="w-full pl-10 pr-4 py-3 bg-[#1f1f3a] border border-[#2e2e4d] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent focus:outline-none text-white placeholder-gray-400 transition duration-200"
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Submit Button */}
             <button
               type="submit"

@@ -6,7 +6,7 @@ import Request from "../models/request.model.js";
 // Register User
 export const signUp = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { username, email, password, role, mentorDescription } = req.body;
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -29,13 +29,17 @@ export const signUp = async (req, res) => {
     ];
     const assignedRole = allowedRoles.includes(role) ? role : "student";
 
-    // Create user
-    const newUser = new User({
+    // Create user object with conditional mentorDescription
+    const userData = {
       username,
       email,
       password: hashedPassword,
       role: assignedRole,
-    });
+      ...(role === "mentor" && { mentorDescription: mentorDescription || "" }),
+    };
+
+    // Create and save user
+    const newUser = new User(userData);
     await newUser.save();
 
     res
@@ -72,7 +76,7 @@ export const signIn = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, role: user.role, username: user.username }, //ouch
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "1d" },
     );
 
     res.status(200).json({
@@ -198,9 +202,27 @@ export const getUserRole = async (req, res) => {
 };
 
 // Get all mentors
+// export const getAllMentors = async (req, res) => {
+//   try {
+//     const mentors = await User.find({ role: "mentor" }).select("-password"); // Just excluding the pass
+
+//     res.status(200).json({
+//       success: true,
+//       mentors,
+//     });
+//   } catch (error) {
+//     console.error("Get Mentors Error:", error);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
 export const getAllMentors = async (req, res) => {
   try {
-    const mentors = await User.find({ role: "mentor" }).select("-password"); // Just excluding the pass
+    const mentors = await User.find({ role: "mentor" })
+      .select("-password")
+      .select("username email role isAvailable mentorDescription");
+
+    console.log("Mentors from DB:", mentors);
 
     res.status(200).json({
       success: true,
@@ -211,7 +233,6 @@ export const getAllMentors = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
 // For letting the Mentors to change the availability
 export const toggleAvailability = async (req, res) => {
   try {
@@ -411,8 +432,8 @@ export const fetchRequests = async (req, res) => {
           self.findIndex(
             (t) =>
               t.student._id.toString() === value.student._id.toString() &&
-              t.mentor._id.toString() === value.mentor._id.toString()
-          )
+              t.mentor._id.toString() === value.mentor._id.toString(),
+          ),
       );
     } else {
       return res.status(400).json({
