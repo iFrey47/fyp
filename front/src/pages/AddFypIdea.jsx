@@ -16,6 +16,7 @@ import {
   Gamepad2,
 } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import projectData from "../../package-project-json";
 
 export default function AddFypIdea() {
   const navigate = useNavigate();
@@ -43,6 +44,68 @@ export default function AddFypIdea() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
   const userId = localStorage.getItem("userId");
+
+  const checkForRAGDuplicates = (projectTitle) => {
+    if (!projectTitle.trim()) return { isDuplicate: false, matches: [] };
+
+    const searchTitle = projectTitle.toLowerCase().trim();
+    const matches = projectData
+      .filter(
+        (project) =>
+          project.title && project.title.toLowerCase().includes(searchTitle),
+      )
+      .slice(0, 3);
+
+    return {
+      isDuplicate: matches.length > 0,
+      matches: matches.map((match) => ({
+        title: match.title,
+        name: match.name,
+        reg_no: match.reg_no,
+        supervisor: match.supervisor || "Not assigned",
+      })),
+    };
+  };
+
+  const checkForDuplicates = async () => {
+    if (!title.trim()) return;
+
+    setCheckingDuplicate(true);
+    setIsDuplicate(false);
+    setDuplicateMatches([]);
+
+    // 1. First check JSON (RAG-style)
+    const ragResult = checkForRAGDuplicates(title);
+    if (ragResult.isDuplicate) {
+      setIsDuplicate(true);
+      setDuplicateMatches(ragResult.matches);
+      setError("[FROM RAG] Similar project found in records:");
+      setCheckingDuplicate(false);
+      return;
+    }
+
+    // 2. Fallback to your original API check
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/checkID", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title, description }),
+      });
+      const data = await res.json();
+      if (data.isDuplicate) {
+        setIsDuplicate(true);
+        setDuplicateMatches(data.matches || []);
+        setError("Duplicate detected in our database");
+      }
+    } catch (err) {
+      console.error("API check error:", err);
+    } finally {
+      setCheckingDuplicate(false);
+    }
+  };
 
   // Interest categories with icons and descriptions
   const interests = [
@@ -122,7 +185,7 @@ export default function AddFypIdea() {
   }, [userId, existingIdeas, recommendations, lastQueried, selectedInterest]);
 
   const genAI = new GoogleGenerativeAI(
-    "AIzaSyDIesxDzQnSHh2psaJnLWQxxfQAHtnJ52o"
+    "AIzaSyDIesxDzQnSHh2psaJnLWQxxfQAHtnJ52o",
   );
 
   const handleInterestSelection = (interest) => {
@@ -154,7 +217,7 @@ export default function AddFypIdea() {
         selectedInterest.name
       } in Computer Science. Focus on projects related to: ${
         selectedInterest.keywords
-      }. 
+      }.
 
 Each suggestion should be practical for final-year students and include:
 - A clear, descriptive title
@@ -317,49 +380,49 @@ Timestamp: ${Date.now()}`;
   }, [token]);
 
   // Check for duplicate ideas
-  const checkForDuplicates = async () => {
-    if (!title.trim() || !description.trim()) return;
+  // const checkForDuplicates = async () => {
+  //   if (!title.trim() || !description.trim()) return;
 
-    setCheckingDuplicate(true);
-    setIsDuplicate(false);
-    setDuplicateMatches([]);
+  //   setCheckingDuplicate(true);
+  //   setIsDuplicate(false);
+  //   setDuplicateMatches([]);
 
-    try {
-      console.log("Checking for duplicates...");
-      const res = await fetch("http://localhost:5000/api/auth/checkID", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ title, description }),
-      });
+  //   try {
+  //     console.log("Checking for duplicates...");
+  //     const res = await fetch("http://localhost:5000/api/auth/checkID", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify({ title, description }),
+  //     });
 
-      const data = await res.json();
-      console.log("Duplicate check response:", data);
+  //     const data = await res.json();
+  //     console.log("Duplicate check response:", data);
 
-      if (data.isDuplicate) {
-        setIsDuplicate(true);
-        setDuplicateMatches(data.matches || []);
-        if (data.matches && data.matches.length > 0) {
-          setError(
-            `This idea is too similar to: ${data.matches[0].title} ` +
-              `(${(data.matches[0].similarity * 100).toFixed(0)}% similar)`
-          );
-        } else {
-          setError(
-            "This idea appears to be a duplicate of an existing proposal."
-          );
-        }
-      } else {
-        setError("");
-      }
-    } catch (err) {
-      console.error("Duplicate check error:", err);
-    } finally {
-      setCheckingDuplicate(false);
-    }
-  };
+  //     if (data.isDuplicate) {
+  //       setIsDuplicate(true);
+  //       setDuplicateMatches(data.matches || []);
+  //       if (data.matches && data.matches.length > 0) {
+  //         setError(
+  //           `This idea is too similar to: ${data.matches[0].title} ` +
+  //             `(${(data.matches[0].similarity * 100).toFixed(0)}% similar)`,
+  //         );
+  //       } else {
+  //         setError(
+  //           "This idea appears to be a duplicate of an existing proposal.",
+  //         );
+  //       }
+  //     } else {
+  //       setError("");
+  //     }
+  //   } catch (err) {
+  //     console.error("Duplicate check error:", err);
+  //   } finally {
+  //     setCheckingDuplicate(false);
+  //   }
+  // };
 
   // Debounce the duplicate check (only check after user stops typing for 1 second)
   useEffect(() => {
@@ -385,7 +448,7 @@ Timestamp: ${Date.now()}`;
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       const data = await res.json();
       console.log("Recommendation response:", data);
@@ -427,7 +490,7 @@ Timestamp: ${Date.now()}`;
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const data = await res.json();
@@ -464,7 +527,7 @@ Timestamp: ${Date.now()}`;
     // If duplicate was found, ask for confirmation
     if (isDuplicate) {
       const confirmSubmit = window.confirm(
-        "This idea appears similar to an existing proposal. Do you still want to submit it?"
+        "This idea appears similar to an existing proposal. Do you still want to submit it?",
       );
       if (!confirmSubmit) {
         setIsLoading(false);
@@ -491,8 +554,8 @@ Timestamp: ${Date.now()}`;
           setError(
             `This idea is too similar to: ${submitData.matches[0].title} ` +
               `(${(submitData.matches[0].similarity * 100).toFixed(
-                0
-              )}% similar)`
+                0,
+              )}% similar)`,
           );
         } else if (submitData.error?.includes("already submitted")) {
           setError("You can only submit one project idea!");
@@ -639,15 +702,27 @@ Timestamp: ${Date.now()}`;
               </div>
 
               {isDuplicate && duplicateMatches.length > 0 && (
-                <div className="mb-4 p-3 bg-yellow-900/20 text-yellow-300 border border-yellow-600">
+                <div className="mb-4 p-3 bg-yellow-900/20 text-yellow-300 border border-yellow-600 rounded-lg">
                   <h4 className="font-semibold flex items-center">
                     <AlertCircle className="mr-2" size={16} />
-                    Duplicate Detected
+                    {error || "Duplicate Detected"}
                   </h4>
-                  <ul className="mt-2 ml-4 list-disc">
-                    {duplicateMatches.slice(0, 2).map((match) => (
-                      <li key={match._id}>
-                        "{match.title}" ({(match.similarity * 100).toFixed(0)}%)
+                  <ul className="mt-2 space-y-2">
+                    {duplicateMatches.map((match, i) => (
+                      <li key={i} className="text-sm">
+                        • <span className="font-medium">"{match.title}"</span>
+                        {match.name && (
+                          <>
+                            <br />
+                            <span className="text-gray-400">
+                              Submitted by: {match.name} (Reg: {match.reg_no})
+                            </span>
+                            <br />
+                            <span className="text-gray-400">
+                              Supervisor: {match.supervisor}
+                            </span>
+                          </>
+                        )}
                       </li>
                     ))}
                   </ul>

@@ -201,28 +201,11 @@ export const getUserRole = async (req, res) => {
   }
 };
 
-// Get all mentors
-// export const getAllMentors = async (req, res) => {
-//   try {
-//     const mentors = await User.find({ role: "mentor" }).select("-password"); // Just excluding the pass
-
-//     res.status(200).json({
-//       success: true,
-//       mentors,
-//     });
-//   } catch (error) {
-//     console.error("Get Mentors Error:", error);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// };
-
 export const getAllMentors = async (req, res) => {
   try {
     const mentors = await User.find({ role: "mentor" })
       .select("-password")
       .select("username email role isAvailable mentorDescription");
-
-    console.log("Mentors from DB:", mentors);
 
     res.status(200).json({
       success: true,

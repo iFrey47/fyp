@@ -67,7 +67,6 @@ export default function StudentDashboard() {
       }
     } catch (err) {
       console.error("Fetch error:", err);
-      // Optionally set some error state to show in UI
     }
   };
 
